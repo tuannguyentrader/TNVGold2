@@ -10,7 +10,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 venv/
-.env
 
 # Node (web)
 node_modules/
@@ -19,6 +18,23 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
-# Local env
-.env*.local
+# Env files (NEVER commit)
 .env
+.env.local
+.env.*.local
+*.env
+
+# Telegram bot token file (NEVER commit)
+telegram_token.txt
+
+# Database files (NEVER commit)
+*.db
+*.sqlite
+*.sqlite3
+data/
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
