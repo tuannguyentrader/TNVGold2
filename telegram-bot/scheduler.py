@@ -486,6 +486,53 @@ def build_daily_report(lang="vi"):
 
 
 
+def _publish_pulse_to_redis():
+    """
+    Tính pulse từ candles hiện tại + ghi lên Upstash Redis để Web đọc.
+    Chạy mỗi 5 phút (cùng pha với auto_signals).
+    """
+    try:
+        from tnv_engine import analyze_tnv
+        from redis_writer import write_pulse
+
+        candles = get_candles(limit=100)
+        if not candles or len(candles) < 22:
+            return
+
+        result = analyze_tnv(candles, use_system1=True, use_system2=False)
+        if "error" in result:
+            return
+
+        price = result.get("current_price")
+        if not price or price <= 0:
+            return
+
+        # Lấy signal LONG/SHORT/EXIT đầu tiên (nếu có) để suy ra bias
+        signals_list = result.get("signals", []) or []
+        bias = "NEUTRAL"
+        score = 0.0
+        exit_price = None
+        for sig in signals_list:
+            stype = sig.get("type", "")
+            if stype in ("LONG", "SHORT"):
+                bias = stype
+                score = float(sig.get("score", 0) or 0)
+                if "entry_level" in sig and sig["entry_level"]:
+                    exit_price = float(sig["entry_level"])
+                break
+
+        n_val = result.get("n_value") or 0
+        write_pulse(
+            price=float(price),
+            bias=bias,
+            score=score,
+            volatility=float(n_val) if n_val else None,
+            exit_price=exit_price,
+        )
+    except Exception as e:
+        log.warning("publish_pulse_to_redis lỗi: %s", e)
+
+
 def scheduler_loop(stop_event: threading.Event):
     """Vòng lặp scheduler: tín hiệu TNV, tin, EOD, expiry check."""
     while not stop_event.is_set():
@@ -502,6 +549,8 @@ def scheduler_loop(stop_event: threading.Event):
             enabled = [c for c in _active_chat_ids if get_runtime_settings(c)["auto_signal"]]
             if enabled:
                 check_auto_signals(enabled)
+            # Ghi pulse lên Upstash Redis (chia sẻ với Web dashboard)
+            _publish_pulse_to_redis()
             # Theo dõi tín hiệu đang mở: tự đóng khi chạm TP/SL
             try:
                 import signals
