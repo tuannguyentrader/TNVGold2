@@ -1,0 +1,6 @@
+python-telegram-bot>=21.0
+requests>=2.31
+# MetaTrader5 (optional — chỉ cần nếu dùng MT5 local)
+# Cài riêng: pip install MetaTrader5
+# Playwright (optional — chỉ cần nếu dùng chart ảnh TradingView)
+# Cài riêng: pip install playwright && playwright install chromium

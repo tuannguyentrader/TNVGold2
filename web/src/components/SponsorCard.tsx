@@ -1,0 +1,1 @@
+export { SponsorCard } from "./sites/tnv-goldpulse/SponsorCard";

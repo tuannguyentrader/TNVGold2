@@ -1,0 +1,652 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   TNV GoldPulse Theme — Pixel-Perfect quantxi.online/goldpulse
+   ============================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+
+  /* shadcn required tokens */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root,
+.dark {
+  --background: #05060a;
+  --foreground: #fdfdfd;
+  --card: #0b0f16;
+  --card-foreground: #fdfdfd;
+  --popover: #0b0f16;
+  --popover-foreground: #fdfdfd;
+  --primary: #f5c542;
+  --primary-foreground: #05060a;
+  --secondary: #111622;
+  --secondary-foreground: rgba(244, 244, 244, 0.78);
+  --muted: #111622;
+  --muted-foreground: rgba(220, 220, 220, 0.78);
+  --accent: rgba(207, 167, 68, 0.3);
+  --accent-foreground: #f5c542;
+  --destructive: #ff8383;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(207, 167, 68, 0.5);
+  --chart-1: #f5c542;
+  --chart-2: #61e294;
+  --chart-3: #ff8383;
+  --chart-4: #00d4ff;
+  --chart-5: #cfa744;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-color: #05060a;
+    background-image: 
+      radial-gradient(circle at 10% 10%, rgba(245, 197, 66, 0.06), transparent 45%),
+      radial-gradient(circle at 90% 40%, rgba(0, 212, 255, 0.03), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(97, 226, 148, 0.03), transparent 50%);
+    background-attachment: fixed;
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fdfdfd;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #05060a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(245, 197, 66, 0.2);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 197, 66, 0.4);
+}
+
+/* ============================================================
+   TNV Standardized Component Tokens & Hierarchy
+   ============================================================ */
+
+/* --- Card Styles --- */
+.qx-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(145deg, #0b0f16, #111622);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.qx-card:hover {
+  border-color: rgba(207, 167, 68, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(207, 167, 68, 0.04);
+}
+
+/* Consistent Typographic Hierarchy */
+.qx-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: rgba(244, 244, 244, 0.75);
+}
+
+.qx-card-main {
+  margin-top: 4px;
+  min-height: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.qx-card-footer {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: rgba(220, 220, 220, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.qx-big-number {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fdfdfd;
+  letter-spacing: -0.01em;
+}
+
+.qx-bias-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f5c542;
+}
+
+.qx-ready-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f5c542;
+}
+
+.qx-basic-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fdfdfd;
+}
+
+.qx-strong {
+  font-weight: 600;
+  color: #fdfdfd;
+}
+
+.qx-subtext {
+  font-size: 0.72rem;
+  color: rgba(97, 226, 148, 0.9);
+}
+
+/* --- Badges and Chips --- */
+.qx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.qx-chip-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(240, 240, 240, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.qx-chip-up {
+  background: rgba(97, 226, 148, 0.16);
+  color: #61e294;
+  border: 1px solid rgba(97, 226, 148, 0.25);
+}
+
+.qx-chip-down {
+  background: rgba(255, 96, 96, 0.16);
+  color: #ff8383;
+  border: 1px solid rgba(255, 96, 96, 0.25);
+}
+
+.qx-chip-outline {
+  border: 1px solid rgba(245, 197, 66, 0.45);
+  background: rgba(245, 197, 66, 0.08);
+  color: #f5c542;
+}
+
+/* --- Bar Tracks --- */
+.qx-bar-track {
+  margin-top: 5px;
+  width: 100%;
+  height: 4.5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.qx-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #cfa744, #f5c542);
+  transition: width 0.5s ease-out;
+}
+
+/* --- Range Bar (RSI & ADX) --- */
+.qx-range-bar {
+  width: 100%;
+  height: 5.5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  margin-top: 5px;
+}
+
+.qx-range-zones {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.qx-zone-green {
+  background: rgba(97, 226, 148, 0.35);
+}
+
+.qx-zone-cyan {
+  background: rgba(0, 212, 255, 0.35);
+}
+
+.qx-zone-neutral {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.qx-zone-red {
+  background: rgba(255, 131, 131, 0.35);
+}
+
+.qx-zone-yellow {
+  background: rgba(245, 197, 66, 0.35);
+}
+
+.qx-range-needle {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 12px;
+  background: #f5c542;
+  border-radius: 1.5px;
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.6);
+}
+
+/* --- Interactive Flip Card --- */
+.qx-flip-card {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qx-flip-front,
+.qx-flip-back {
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.qx-flip-badge {
+  font-size: 0.62rem;
+  background: rgba(245, 197, 66, 0.12);
+  color: #f5c542;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 197, 66, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.qx-flip-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.qx-flip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 1.5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.qx-flip-row:last-child {
+  border-bottom: none;
+}
+
+.qx-flip-tf {
+  color: rgba(244, 244, 244, 0.65);
+  font-weight: 500;
+  font-size: 0.7rem;
+}
+
+.qx-flip-val {
+  color: #fdfdfd;
+  font-weight: 600;
+}
+
+/* --- Info Tip with hover popover --- */
+.qx-info-tip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-style: italic;
+  font-weight: 700;
+  color: rgba(245, 197, 66, 0.5);
+  cursor: help;
+  z-index: 20;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 197, 66, 0.25);
+  transition: all 0.2s;
+  font-family: Georgia, serif;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.qx-info-tip:hover {
+  color: #f5c542;
+  background: rgba(245, 197, 66, 0.15);
+  border-color: rgba(245, 197, 66, 0.6);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.3);
+}
+
+.qx-info-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  width: 230px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #151a25;
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  color: rgba(240, 240, 240, 0.95);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 400;
+  font-family: "Poppins", system-ui, sans-serif;
+  line-height: 1.4;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 100;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.qx-info-tip:hover::after {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* --- Hero Header --- */
+.qx-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.qx-hero-left h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fdfdfd;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qx-hero-sub {
+  font-size: 0.85rem;
+  color: rgba(220, 220, 220, 0.8);
+  margin: 0 0 8px;
+}
+
+.qx-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.qx-pill {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qx-pill-soft {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(220, 220, 220, 0.85);
+}
+
+.qx-pill-session {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: #00d4ff;
+}
+
+.qx-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+
+.qx-tier-free {
+  background: rgba(245, 197, 66, 0.14);
+  color: #f5c542;
+  border: 1px solid rgba(245, 197, 66, 0.3);
+}
+
+.qx-tier-pro {
+  background: rgba(97, 226, 148, 0.16);
+  color: #61e294;
+  border: 1px solid rgba(97, 226, 148, 0.35);
+}
+
+/* --- Container --- */
+.qx-container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 16px 14px 56px;
+}
+
+/* ============================================================
+   TOP ROW LAYOUT — Exact quantxi.online/goldpulse structure
+   Left (~60%): 6 Metric cards (2 columns x 3 rows)
+   Right (~40%): AI Analysis Summary & Radial Pulse Gauge
+   ============================================================ */
+
+.qx-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+
+.qx-live-metrics {
+  min-width: 0;
+  height: 100%;
+}
+
+.qx-live-summary {
+  min-width: 0;
+  height: 100%;
+}
+
+/* --- Sponsor & Market Feed Row (Below Top Row) --- */
+.qx-sponsor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+
+/* --- Technical Grid (6 columns) --- */
+.qx-tech-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .qx-tech-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .qx-tech-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.qx-tech-card {
+  position: relative;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(145deg, #05060a, #0c1018);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease-out;
+}
+
+.qx-tech-card:hover {
+  border-color: rgba(207, 167, 68, 0.3);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
+}
+
+/* Pulse indicator animation */
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.35); opacity: 0.4; }
+}
+
+.animate-pulse-dot {
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+/* Timeframe and Range toggle buttons */
+.qx-tf-btn {
+  border-radius: 6px;
+  color: rgba(220, 220, 220, 0.6);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.qx-tf-btn:hover {
+  color: #fdfdfd;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.qx-tf-btn.active {
+  background: rgba(245, 197, 66, 0.18);
+  color: #f5c542;
+  font-weight: 700;
+  border: 1px solid rgba(245, 197, 66, 0.35);
+}
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 1024px) {
+  .qx-tech-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .qx-top-row {
+    grid-template-columns: 1fr;
+  }
+  .qx-sponsor-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .qx-hero {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .qx-hero-left h1 {
+    font-size: 1.3rem;
+  }
+  .qx-tech-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .qx-container {
+    padding: 12px 10px 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .qx-tech-grid {
+    grid-template-columns: 1fr;
+  }
+}

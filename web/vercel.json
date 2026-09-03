@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/blog-generate",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/news-fetch",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}

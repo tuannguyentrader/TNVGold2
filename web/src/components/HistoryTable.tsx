@@ -1,0 +1,1 @@
+export { HistoryTable } from "./sites/tnv-goldpulse/HistoryTable";

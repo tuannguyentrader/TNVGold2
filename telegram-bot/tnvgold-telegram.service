@@ -1,0 +1,23 @@
+[Unit]
+Description=TNVGold Telegram Bot (XAUUSD)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/tnvgold-telegram
+EnvironmentFile=/opt/tnvgold-telegram/tnvgold.env
+ExecStart=/usr/bin/python3 /opt/tnvgold-telegram/main.py
+Restart=always
+RestartSec=10
+
+# Logs
+StandardOutput=append:/var/log/tnvgold-telegram.log
+StandardError=append:/var/log/tnvgold-telegram.log
+
+# Security (best effort)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

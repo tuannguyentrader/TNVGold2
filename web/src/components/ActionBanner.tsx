@@ -1,0 +1,1 @@
+export { ActionBanner } from "./sites/tnv-goldpulse/ActionBanner";

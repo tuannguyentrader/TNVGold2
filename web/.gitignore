@@ -1,0 +1,11 @@
+node_modules
+.next
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+
+# MT5 compiled binaries
+*.ex5
+
+.DS_Store
+
