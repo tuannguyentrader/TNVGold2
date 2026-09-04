@@ -24,7 +24,8 @@ try:
     _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
     if os.path.exists(_env_path):
         load_dotenv(_env_path)
-        logging.getLogger("main").info("Loaded .env from %s", _env_path)
+        # Ghi log ra console; sẽ log lại vào file sau khi setup_file_logging()
+        print(f"[INFO] main: Loaded .env from {_env_path}")
 except ImportError:
     pass  # production có thể không cần python-dotenv
 
@@ -53,6 +54,10 @@ def setup_file_logging():
         )
         logging.getLogger().addHandler(handler)
         log.info("File log: %s", LOG_PATH)
+        # Ghi lại "Loaded .env" vào file log
+        _env_path_log = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+        if os.path.exists(_env_path_log) and os.environ.get("KV_REST_API_URL"):
+            log.info("Loaded .env from %s", _env_path_log)
     except Exception as e:
         logging.getLogger().warning("Không thể tạo file log: %s", e)
 
