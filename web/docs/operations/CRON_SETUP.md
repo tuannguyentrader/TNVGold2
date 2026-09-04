@@ -6,17 +6,13 @@
 
 ## 1. Cron Jobs (chạy tự động)
 
-### Vercel Cron (tự động từ `vercel.json`)
+> **QUAN TRỌNG — Hobby plan limit:** Vercel Hobby chỉ cho phép cron **1 lần/ngày tối thiểu** (cảnh báo: *"Hobby accounts are limited to daily cron jobs"*). Nếu muốn hourly/30-min, **BẮT BUỘC** dùng cron-job.org (free) hoặc upgrade Vercel Pro ($20/tháng).
 
-Vercel tự đọc `vercel.json` ở root repo. Không cần config gì thêm.
+### Vercel Cron (đã TẮT)
 
-**Hạn chế Hobby plan:**
-- Tối đa 2 cron jobs
-- Mỗi job chạy **1 lần/ngày tối thiểu** (không phải hourly)
+`vercel.json` hiện tại có `crons: []` (rỗng) — tắt Vercel Cron. Lý do: Hobby plan giới hạn 1 lần/ngày, không phù hợp với nhu cầu hourly/30-min.
 
-Nếu cần chạy hourly → cần Vercel Pro ($20/tháng) HOẶC dùng cron-job.org.
-
-### Cron-job.org (MIỄN PHÍ, khuyến nghị)
+### Cron-job.org (MIỄN PHÍ — KHUYẾN NGHỊ CHÍNH)
 
 Vào https://cron-job.org → đăng ký tài khoản → tạo 2 jobs:
 
@@ -40,6 +36,19 @@ curl https://tnvgold.vercel.app/api/cron/news-fetch
 Sau khi chạy:
 - Vào `/blog` → sẽ thấy bài mới "XAUUSD Pulse — YYYY-MM-DD HH"
 - Vào `/tin-tuc` → sẽ thấy tin USD mới
+
+### Nếu muốn dùng Vercel Cron (giới hạn 1 lần/ngày)
+Cập nhật `vercel.json`:
+```json
+{
+  "crons": [
+    {"path": "/api/cron/blog-generate", "schedule": "0 0 * * *"},
+    {"path": "/api/cron/news-fetch", "schedule": "0 12 * * *"}
+  ]
+}
+```
+- Blog: 1 lần/ngày lúc 0h
+- News: 1 lần/ngày lúc 12h
 
 ---
 
