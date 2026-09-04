@@ -2,7 +2,6 @@
 
 import { LanguageProvider } from "@/lib/language-context";
 import { LivePulseProvider } from "@/lib/live-pulse-context";
-import { HeroHeader } from "./HeroHeader";
 import { ActionBanner } from "./ActionBanner";
 import { LiveMetricsGrid } from "./LiveMetricsGrid";
 import { AnalysisSummary } from "./AnalysisSummary";
@@ -23,8 +22,7 @@ export function TNVGoldPulseApp() {
         <main className="max-w-[1260px] mx-auto px-3 sm:px-4 py-3 pb-20 text-white font-sans">
           <DisclaimerBanner />
 
-          {/* Header */}
-          <HeroHeader />
+          {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
           <ProUpgradeBar />
 
