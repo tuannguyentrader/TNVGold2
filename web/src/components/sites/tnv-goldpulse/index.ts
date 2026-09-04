@@ -10,7 +10,7 @@ export { TechCard } from "./TechCard";
 export { HistoryTable } from "./HistoryTable";
 export { SiteFooter } from "./SiteFooter";
 export { SubscribeBar } from "./SubscribeBar";
-export { DisclaimerBanner } from "./DisclaimerBanner";
+// DisclaimerBanner removed (gộp vào SubscribeBar)
 export { ProUpgradeBar } from "./ProUpgradeBar";
 export { NotificationModal } from "./NotificationModal";
 export { PulseGauge } from "./PulseGauge";

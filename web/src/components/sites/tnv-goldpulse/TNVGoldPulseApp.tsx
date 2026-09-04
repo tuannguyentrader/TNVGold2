@@ -10,15 +10,12 @@ import { ChartSection } from "./ChartSection";
 import { TechnicalGrid } from "./TechnicalGrid";
 import { HistoryTable } from "./HistoryTable";
 import { SiteFooter } from "./SiteFooter";
-import { DisclaimerBanner } from "./DisclaimerBanner";
 import { ProUpgradeBar } from "./ProUpgradeBar";
 
 export function TNVGoldPulseApp() {
   return (
     <LivePulseProvider>
       <main className="max-w-[1260px] mx-auto px-3 sm:px-4 py-3 pb-20 text-white font-sans">
-        <DisclaimerBanner />
-
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
         <ProUpgradeBar />
