@@ -39,9 +39,18 @@ function parseXmlEvents(xml: string): NewsItem[] {
     const title = (titleMatch[1] || "").trim();
     if (!title) continue;
 
+    // Parse time an toàn — ForexFactory XML format không chuẩn ISO
+    let parsedTime = new Date().toISOString();
+    if (timeMatch && timeMatch[1]) {
+      const tryDate = new Date(timeMatch[1]);
+      if (!isNaN(tryDate.getTime())) {
+        parsedTime = tryDate.toISOString();
+      }
+    }
+
     items.push({
       title,
-      time: timeMatch ? new Date(timeMatch[1]).toISOString() : new Date().toISOString(),
+      time: parsedTime,
       url: urlMatch ? urlMatch[1] : "",
       source: "ForexFactory",
       currency: countryMatch ? countryMatch[1] : "",
@@ -67,7 +76,12 @@ async function fetchViaXml(): Promise<NewsItem[] | null> {
 }
 
 async function fetchViaRss2Json(): Promise<NewsItem[]> {
-  const url = `${RSS2JSON_API}?rss_url=${encodeURIComponent(FF_RSS_OLD)}&count=20`;
+  // rss2json FREE không cần API key cho basic call
+  // Chỉ thêm &count=... nếu có key (paid plan)
+  const apiKey = process.env.RSS2JSON_API_KEY;
+  const url = apiKey
+    ? `${RSS2JSON_API}?rss_url=${encodeURIComponent(FF_RSS_OLD)}&count=20&api_key=${apiKey}`
+    : `${RSS2JSON_API}?rss_url=${encodeURIComponent(FF_RSS_OLD)}`;
   const res = await fetch(url, { next: { revalidate: 0 } });
   if (!res.ok) throw new Error(`rss2json returned ${res.status}`);
   const data = await res.json();
