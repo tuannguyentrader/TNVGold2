@@ -112,20 +112,8 @@ export function SiteHeader() {
         </nav>
       </div>
 
-      {/* Right: Bell + Language (cùng style với landing) */}
+      {/* Right: Language + Bell (đồng bộ với landing) */}
       <div className="flex items-center gap-2">
-        {/* Bell — mở Subscribe modal */}
-        <button
-          className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
-          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
-          aria-label="Subscribe"
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
-          }}
-        >
-          <Bell className="w-4 h-4" />
-        </button>
-
         {/* Language Dropdown */}
         <div className="relative" ref={langMenuRef}>
           <button
@@ -177,6 +165,18 @@ export function SiteHeader() {
             </div>
           )}
         </div>
+
+        {/* Bell — mở Subscribe modal */}
+        <button
+          className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
+          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
+          aria-label="Subscribe"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
+          }}
+        >
+          <Bell className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );

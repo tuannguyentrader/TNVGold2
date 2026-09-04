@@ -79,19 +79,6 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
       </div>
 
       <div className="flex items-center gap-2">
-        {/* Bell — mở Subscribe Free */}
-        <button
-          onClick={() => {
-            // Dispatch event — SubscribeBar ở layout.tsx sẽ nghe và mở modal ngay
-            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
-          }}
-          className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
-          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
-          aria-label="Subscribe"
-        >
-          <Bell className="w-4 h-4" />
-        </button>
-
         {/* Language dropdown — đồng bộ với SiteHeader */}
         <div className="relative" ref={langMenuRef}>
           <button
@@ -143,6 +130,19 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
             </div>
           )}
         </div>
+
+        {/* Bell — mở Subscribe modal */}
+        <button
+          onClick={() => {
+            // Dispatch event — SubscribeBar ở layout.tsx sẽ nghe và mở modal ngay
+            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
+          }}
+          className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
+          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
+          aria-label="Subscribe"
+        >
+          <Bell className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );
