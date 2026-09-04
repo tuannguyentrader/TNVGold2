@@ -13,6 +13,11 @@ export const i18n = {
       "Phân tích vàng XAUUSD real-time bằng AI. Bias, score, multi-timeframe, session flow Tokyo/London/NY. Tự động đăng bài phân tích hàng giờ.",
     ctaDashboard: "Xem Dashboard",
     ctaContact: "Liên hệ Admin",
+    navDashboard: "Dashboard",
+    navBlog: "Blog",
+    navNews: "Tin tức",
+    heroBlogBtn: "Đọc Blog",
+    heroNewsBtn: "Xem Tin tức",
     featuresTitle: "Tính năng nổi bật",
     featuresSubtitle: "Mọi thứ bạn cần để giao dịch vàng hiệu quả hơn, tập trung trong 1 dashboard.",
     features: [
@@ -64,6 +69,11 @@ export const i18n = {
     heroDesc: "Real-time AI-powered XAUUSD gold analytics. Bias, score, multi-timeframe, Tokyo/London/NY session flow. Auto-published analysis every hour.",
     ctaDashboard: "View Dashboard",
     ctaContact: "Contact Admin",
+    navDashboard: "Dashboard",
+    navBlog: "Blog",
+    navNews: "News",
+    heroBlogBtn: "Read Blog",
+    heroNewsBtn: "View News",
     featuresTitle: "Key Features",
     featuresSubtitle: "Everything you need to trade gold more effectively, in one dashboard.",
     features: [

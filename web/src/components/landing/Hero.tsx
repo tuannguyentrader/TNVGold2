@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BookOpen, Newspaper } from "lucide-react";
 import { i18n, type Lang, ADMIN_TELEGRAM } from "./i18n";
 
 export function Hero({ lang }: { lang: Lang }) {
@@ -18,7 +19,9 @@ export function Hero({ lang }: { lang: Lang }) {
         <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
           {t.heroDesc}
         </p>
-        <div className="flex flex-wrap gap-4 justify-center">
+
+        {/* Primary CTAs */}
+        <div className="flex flex-wrap gap-4 justify-center mb-4">
           <Link
             href="/goldpulse"
             className="px-6 py-3 rounded-lg bg-[#f5c542] text-[#05060a] font-semibold hover:bg-[#cfa744] transition"
@@ -33,6 +36,24 @@ export function Hero({ lang }: { lang: Lang }) {
           >
             {t.ctaContact}
           </a>
+        </div>
+
+        {/* Secondary CTAs — Blog + News */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-[#f5c542] hover:bg-white/5 transition"
+          >
+            <BookOpen className="w-4 h-4" />
+            {t.heroBlogBtn}
+          </Link>
+          <Link
+            href="/tin-tuc"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-[#f5c542] hover:bg-white/5 transition"
+          >
+            <Newspaper className="w-4 h-4" />
+            {t.heroNewsBtn}
+          </Link>
         </div>
       </div>
     </section>
