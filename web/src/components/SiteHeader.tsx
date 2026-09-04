@@ -16,8 +16,8 @@ export function SiteHeader() {
   const { language } = useLanguage();
   const lang = (language as "vi" | "en") || "vi";
 
-  // Ẩn trên landing — landing có Header riêng
-  if (pathname === "/") return null;
+  // Ẩn trên landing + goldpulse — cả 2 đều có Header riêng
+  if (pathname === "/" || pathname.startsWith("/goldpulse")) return null;
 
   const navItems = [
     {
