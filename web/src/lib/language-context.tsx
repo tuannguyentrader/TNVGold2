@@ -369,6 +369,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguage(lang);
     if (typeof window !== "undefined") {
       localStorage.setItem("tnv_lang", lang);
+      // Báo cho landing (LandingClient) biết để sync state
+      window.dispatchEvent(new CustomEvent("tnv:lang-change", { detail: { lang } }));
     }
   };
 
