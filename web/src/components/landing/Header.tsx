@@ -2,12 +2,37 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Zap, Newspaper, BookOpen, LayoutDashboard, Bell } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Zap, Newspaper, BookOpen, LayoutDashboard, Bell, Check, ChevronDown } from "lucide-react";
 import { i18n, type Lang } from "./i18n";
 
 export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const t = i18n[lang];
   const pathname = usePathname();
+
+  // Language dropdown state
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
+        setShowLangMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close on ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowLangMenu(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const navItems = [
     { href: "/goldpulse", label: t.navDashboard, icon: LayoutDashboard },
@@ -67,13 +92,57 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
           <Bell className="w-4 h-4" />
         </button>
 
-        {/* Language toggle */}
-        <button
-          onClick={() => setLang(lang === "vi" ? "en" : "vi")}
-          className="px-3 py-1.5 text-sm font-medium rounded-md border border-white/10 hover:border-[#f5c542]/50 hover:bg-[#f5c542]/5 transition"
-        >
-          {t.languageToggle}
-        </button>
+        {/* Language dropdown — đồng bộ với SiteHeader */}
+        <div className="relative" ref={langMenuRef}>
+          <button
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            className="flex items-center gap-1 px-2 py-1 rounded-md border border-white/10 bg-[#0e131f] hover:border-white/20 text-[0.7rem] font-semibold text-gray-200 transition-all cursor-pointer"
+            title="Select Language"
+            aria-expanded={showLangMenu}
+          >
+            <span>{lang === "en" ? "🇬🇧" : "🇻🇳"}</span>
+            <span className="uppercase">{lang}</span>
+            <ChevronDown className="w-3 h-3 text-gray-400" />
+          </button>
+
+          {showLangMenu && (
+            <div className="absolute right-0 top-full mt-1.5 z-50 min-w-[130px] rounded-xl border border-white/10 bg-[#0b0f16] p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+              <button
+                onClick={() => {
+                  setLang("en");
+                  setShowLangMenu(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  lang === "en"
+                    ? "bg-[rgba(245,197,66,0.15)] text-[#f5c542] font-bold"
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🇬🇧</span> English
+                </span>
+                {lang === "en" && <Check className="w-3 h-3 text-[#f5c542]" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  setLang("vi");
+                  setShowLangMenu(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  lang === "vi"
+                    ? "bg-[rgba(245,197,66,0.15)] text-[#f5c542] font-bold"
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span>🇻🇳</span> Tiếng Việt
+                </span>
+                {lang === "vi" && <Check className="w-3 h-3 text-[#f5c542]" />}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
