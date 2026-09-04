@@ -226,7 +226,7 @@ const translations: Record<Language, Translations> = {
     colLow: "Low",
     colHTF: "HTF Filter",
 
-    subBarText: "Get tomorrow's market pulse in your inbox at London open",
+    subBarText: "TNV Gold is a quantitative market analytics tool and does not constitute financial advice. Trading involves risk — manage your capital carefully.",
     subBarBtn: "Subscribe Free",
     disclaimerText: "TNV Gold is a quantitative market analytics tool and does not constitute financial advice.",
     footerRights: "© 2026 TNV. All rights reserved.",
@@ -335,7 +335,7 @@ const translations: Record<Language, Translations> = {
     colLow: "Low",
     colHTF: "Bộ lọc HTF",
 
-    subBarText: "Nhận thông báo xung lực thị trường vào đầu phiên London",
+    subBarText: "TNV Gold là công cụ phân tích dữ liệu định lượng, không phải lời khuyên đầu tư tài chính. Giao dịch có rủi ro — hãy quản lý vốn chặt chẽ.",
     subBarBtn: "Đăng ký Miễn phí",
     disclaimerText: "TNV Gold là công cụ phân tích dữ liệu định lượng, không phải lời khuyên đầu tư tài chính.",
     footerRights: "© 2026 TNV. Bản quyền thuộc về TNV.",
