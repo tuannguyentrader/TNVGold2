@@ -49,18 +49,20 @@ export function LivePulseProvider({ children }: { children: ReactNode }) {
       const res = await fetch("/api/pulse", { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
-        const hasRealData = json.success && json.data && json.data.price > 0;
-        if (hasRealData) {
+        // Luôn update state khi API trả success — dù price=0 hay >0
+        // Logic cũ: skip khi price=0 → gây stuck "—" vĩnh viễn
+        if (json.success && json.data) {
           setPulse(json.data);
           if (Array.isArray(json.history) && json.history.length > 0) {
             setHistory(json.history);
           }
-          setIsLiveConnected(true);
+          // isLiveConnected: true khi có data thật (price > 0)
+          setIsLiveConnected(json.data.price > 0);
           setLastUpdated(new Date().toLocaleTimeString("en-GB", { hour12: false }));
         }
       }
     } catch {
-      // Fallback
+      // Fallback — giữ state cũ
     }
   };
 
