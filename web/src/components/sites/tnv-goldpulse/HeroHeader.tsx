@@ -103,6 +103,19 @@ export function HeroHeader() {
             <span className="w-1 h-1 rounded-full bg-[#61e294] animate-pulse" />
             LIVE
           </span>
+
+          {/* Session pill — nhỏ, gold */}
+          <span
+            className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-bold tracking-wider uppercase bg-[#f5c542]/10 text-[#f5c542] border border-[#f5c542]/30"
+            title={
+              language === "vi"
+                ? `Phiên ${session} đang hoạt động`
+                : `${session} session active`
+            }
+          >
+            <span className="w-1 h-1 rounded-full bg-[#f5c542] animate-pulse" />
+            {session}
+          </span>
         </div>
 
         {/* Right: Lang + Bell — siêu gọn */}
@@ -170,17 +183,6 @@ export function HeroHeader() {
           </button>
         </div>
       </header>
-
-      {/* Session info dưới header — ẩn trên mobile */}
-      <div className="hidden md:flex items-center justify-between text-[0.7rem] text-gray-500 mb-3 px-1">
-        <span>
-          {t.brandTag} • <span className="text-[#f5c542] font-mono font-semibold">{session}</span>{" "}
-          session • 10s refresh
-        </span>
-        <span className="font-mono">
-          {new Date().toLocaleTimeString(language === "vi" ? "vi-VN" : "en-US", { hour: "2-digit", minute: "2-digit" })} UTC
-        </span>
-      </div>
 
       {/* Notifications Modal */}
       <NotificationModal
