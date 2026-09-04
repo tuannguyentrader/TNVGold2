@@ -172,14 +172,8 @@ export function SiteHeader() {
           title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
           aria-label="Subscribe"
           onClick={() => {
-            // Dispatch custom event — SubscribeBar sẽ nghe và scroll/expand
+            // Dispatch custom event — SubscribeBar sẽ nghe và mở modal ngay tại chỗ
             window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
-            // Fallback: nếu không có listener, về /goldpulse#subscribe
-            setTimeout(() => {
-              if (pathname !== "/goldpulse") {
-                window.location.href = "/goldpulse#subscribe";
-              }
-            }, 200);
           }}
         >
           <Bell className="w-4 h-4" />

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
+import { LanguageProvider } from "@/lib/language-context";
+import { SubscribeBar } from "@/components/sites/tnv-goldpulse/SubscribeBar";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://tnvgold.vercel.app";
 
@@ -121,8 +123,11 @@ export default function RootLayout({
         className="min-h-full flex flex-col antialiased bg-[#05060a] text-[#fdfdfd]"
         suppressHydrationWarning
       >
-        <SiteHeader />
-        {children}
+        <LanguageProvider>
+          <SiteHeader />
+          {children}
+          <SubscribeBar />
+        </LanguageProvider>
       </body>
     </html>
   );

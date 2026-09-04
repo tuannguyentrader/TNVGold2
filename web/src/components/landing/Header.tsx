@@ -57,8 +57,8 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
         {/* Bell — mở Subscribe Free */}
         <button
           onClick={() => {
-            // Về /goldpulse#subscribe (SubscribeBar ở đó)
-            window.location.href = "/goldpulse#subscribe";
+            // Dispatch event — SubscribeBar ở layout.tsx sẽ nghe và mở modal ngay
+            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
           }}
           className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
           title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
