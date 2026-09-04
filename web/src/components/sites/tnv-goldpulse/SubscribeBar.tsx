@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { NotificationModal } from "./NotificationModal";
 import { useLanguage } from "@/lib/language-context";
@@ -9,6 +9,16 @@ export function SubscribeBar() {
   const { t } = useLanguage();
   const [dismissed, setDismissed] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
+  // Nghe event từ Bell icon ở SiteHeader / Header landing
+  useEffect(() => {
+    const handler = () => {
+      setDismissed(false); // hiện lại bar nếu user đã đóng
+      setShowModal(true);
+    };
+    window.addEventListener("tnv:open-subscribe", handler);
+    return () => window.removeEventListener("tnv:open-subscribe", handler);
+  }, []);
 
   if (dismissed) return null;
 

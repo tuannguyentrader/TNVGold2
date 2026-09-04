@@ -169,11 +169,17 @@ export function SiteHeader() {
         {/* Bell */}
         <button
           className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
-          title={lang === "vi" ? "Thông báo" : "Notifications"}
-          aria-label="Notifications"
+          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
+          aria-label="Subscribe"
           onClick={() => {
-            // TODO: mở modal notification
-            alert(lang === "vi" ? "Sắp có notifications" : "Notifications coming soon");
+            // Dispatch custom event — SubscribeBar sẽ nghe và scroll/expand
+            window.dispatchEvent(new CustomEvent("tnv:open-subscribe"));
+            // Fallback: nếu không có listener, về /goldpulse#subscribe
+            setTimeout(() => {
+              if (pathname !== "/goldpulse") {
+                window.location.href = "/goldpulse#subscribe";
+              }
+            }, 200);
           }}
         >
           <Bell className="w-4 h-4" />

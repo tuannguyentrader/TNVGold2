@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Zap, Newspaper, BookOpen, LayoutDashboard } from "lucide-react";
+import { Zap, Newspaper, BookOpen, LayoutDashboard, Bell } from "lucide-react";
 import { i18n, type Lang } from "./i18n";
 
 export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
@@ -53,12 +53,28 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
         </nav>
       </div>
 
-      <button
-        onClick={() => setLang(lang === "vi" ? "en" : "vi")}
-        className="px-3 py-1.5 text-sm font-medium rounded-md border border-white/10 hover:border-[#f5c542]/50 hover:bg-[#f5c542]/5 transition"
-      >
-        {t.languageToggle}
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Bell — mở Subscribe Free */}
+        <button
+          onClick={() => {
+            // Về /goldpulse#subscribe (SubscribeBar ở đó)
+            window.location.href = "/goldpulse#subscribe";
+          }}
+          className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
+          title={lang === "vi" ? "Đăng ký / Thông báo" : "Subscribe / Notifications"}
+          aria-label="Subscribe"
+        >
+          <Bell className="w-4 h-4" />
+        </button>
+
+        {/* Language toggle */}
+        <button
+          onClick={() => setLang(lang === "vi" ? "en" : "vi")}
+          className="px-3 py-1.5 text-sm font-medium rounded-md border border-white/10 hover:border-[#f5c542]/50 hover:bg-[#f5c542]/5 transition"
+        >
+          {t.languageToggle}
+        </button>
+      </div>
     </header>
   );
 }

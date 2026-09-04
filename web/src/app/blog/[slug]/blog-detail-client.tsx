@@ -69,7 +69,7 @@ export function BlogDetailClient({ slug }: { slug: string }) {
           className="text-sm text-[#f5c542] hover:underline mb-6 inline-flex items-center gap-1"
         >
           <ArrowLeft className="w-3 h-3" />
-          {ui.back}
+          {ui.back.replace(/^[←←]\s*/, "")}
         </Link>
 
         <header className="mb-8 pb-8 border-b border-white/5">
