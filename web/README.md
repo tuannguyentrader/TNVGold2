@@ -12,7 +12,7 @@ Trang web marketing/landing + blog tự động cho TNV Gold. Tự động đăn
 - **Blog tự động** — Cron mỗi giờ tạo bài phân tích XAUUSD từ pulse snapshot
 - **Tin tức kinh tế** — Cron 30 phút fetch từ ForexFactory, tự lọc USD High Impact
 - **SEO đầy đủ**: sitemap.xml động, robots.txt, Open Graph image, JSON-LD Article, RSS feed
-- **Dashboard `/goldpulse`** — real-time pulse từ Upstash Redis (do MT5 EA gửi)
+- **Dashboard `/goldpulse`** — real-time pulse từ Upstash Redis (Telegram bot ghi mỗi 5 phút)
 
 ---
 
@@ -69,9 +69,7 @@ Mở [http://localhost:3000](http://localhost:3000).
 | Endpoint | Method | Mục đích | Auth |
 |---|---|---|---|
 | `/api/health` | GET | Health check | — |
-| `/api/pulse` | GET | Lấy pulse hiện tại | — |
-| `/api/pulse` | POST | Ghi pulse (từ EA) | Bearer |
-| `/api/pulse/clear` | POST | Xoá pulse | Bearer |
+| `/api/pulse` | GET | Lấy pulse hiện tại (từ Redis) | — |
 | `/api/news` | GET | ForexFactory proxy (rss2json) | — |
 | `/api/news/store` | GET | News từ Redis store | — |
 | `/api/posts` | GET | List blog posts | — |
@@ -168,15 +166,16 @@ src/
 
 ---
 
-## 📡 MT5 Integration
+## 📡 Data Source
 
-Để dashboard `/goldpulse` có data real-time:
-1. Mở MT5 → Tools → Options → Expert Advisors
-2. Check "Allow WebRequest for listed URL", thêm Vercel URL
-3. Attach `docs/TNV_WebBridge_EA.mq5` vào chart XAUUSD M5
-4. Config Web URL + Secret Token (env `TNV_SECRET_KEY`)
+Dashboard `/goldpulse` lấy data từ **Upstash Redis**, được ghi bởi **Telegram bot Python** (chạy trên VPS, scheduler 5 phút/lần). Bot đọc candles từ MT5 local, phân tích bằng `analyze_tnv()`, ghi lên key `tnv:current_pulse` (TTL 60s).
 
-Chi tiết: xem `docs/TNV_WebBridge_EA.mq5` + `docs/analysis/MT5_DATAFLOW_AND_EA_ANALYSIS.md`
+Cấu hình bot:
+- Copy `telegram-bot/redis_writer.py` + `telegram-bot/scheduler.py` (đã sửa) lên VPS
+- Set env: `KV_REST_API_URL`, `KV_REST_API_TOKEN` (cùng với Vercel)
+- Bot tự ghi pulse mỗi 5 phút → Web tự hiển thị
+
+Xem chi tiết tại: `telegram-bot/SETUP_VPS.md`
 
 ---
 

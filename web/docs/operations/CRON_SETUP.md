@@ -146,9 +146,7 @@ Backup giữ 7 ngày, có thể restore.
 | Endpoint | Method | Mục đích | Auth |
 |---|---|---|---|
 | `/api/health` | GET | Health check | — |
-| `/api/pulse` | GET | Lấy pulse hiện tại | — |
-| `/api/pulse` | POST | Ghi pulse (từ EA) | Bearer |
-| `/api/pulse/clear` | POST | Xoá pulse | Bearer |
+| `/api/pulse` | GET | Lấy pulse hiện tại (từ Redis) | — |
 | `/api/news` | GET | ForexFactory proxy | — |
 | `/api/news/store` | GET | News từ store | — |
 | `/api/posts` | GET | List blog posts | — |
