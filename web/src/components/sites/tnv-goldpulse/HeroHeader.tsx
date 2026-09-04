@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, Key, Check, ChevronDown } from "lucide-react";
+import { Bell, Key, Check, ChevronDown, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { NotificationModal } from "./NotificationModal";
 import { useLanguage } from "@/lib/language-context";
 
-function getActiveSession(): { name: string; short: string } {
+function getActiveSession(): string {
   const utcHour = new Date().getUTCHours();
-  if (utcHour >= 8 && utcHour < 13) return { name: "London", short: "LDN" };
-  if (utcHour >= 13 && utcHour < 17) return { name: "London & NY", short: "LDN•NY" };
-  if (utcHour >= 17 && utcHour < 22) return { name: "New York", short: "NY" };
-  if (utcHour >= 22 || utcHour < 7) return { name: "Tokyo", short: "TKY" };
-  return { name: "London Pre", short: "LDN-" };
+  if (utcHour >= 8 && utcHour < 13) return "LDN";
+  if (utcHour >= 13 && utcHour < 17) return "LDN•NY";
+  if (utcHour >= 17 && utcHour < 22) return "NY";
+  if (utcHour >= 22 || utcHour < 7) return "TKY";
+  return "LDN-";
 }
 
 export function HeroHeader() {
@@ -21,7 +22,7 @@ export function HeroHeader() {
   const [keySaved, setKeySaved] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const [session, setSession] = useState({ name: "London", short: "LDN" });
+  const [session, setSession] = useState("LDN");
   const langMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,7 +31,6 @@ export function HeroHeader() {
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
@@ -41,7 +41,6 @@ export function HeroHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle ESC key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -66,44 +65,48 @@ export function HeroHeader() {
 
   return (
     <>
-      <header className="flex items-center justify-between gap-3 py-3 mb-3 text-sm">
-        {/* Left: Brand gọn — TNV Gold • LIVE */}
-        <div className="flex items-center gap-2">
-          <svg
-            viewBox="0 0 24 24"
-            className="w-6 h-6 text-[#f5c542]"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+      <header className="flex items-center justify-between gap-2 py-2.5 mb-3">
+        {/* Left: Back + Brand cực gọn */}
+        <div className="flex items-center gap-2 min-w-0">
+          <Link
+            href="/"
+            className="p-1 -ml-1 rounded-md text-gray-400 hover:text-[#f5c542] hover:bg-white/5 transition md:hidden"
+            aria-label="Về trang chủ"
+            title="Về trang chủ"
           >
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            <circle cx="12" cy="4" r="1.5" fill="#f5c542" />
-            <circle cx="18" cy="8" r="1.5" fill="#f5c542" />
-            <circle cx="6" cy="16" r="1.5" fill="#f5c542" />
-          </svg>
-          <h1 className="text-lg font-bold tracking-tight text-white m-0 flex items-center gap-1.5">
-            <span className="text-[#f5c542]">TNV</span>
-            <span>Gold</span>
-          </h1>
-          <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-bold tracking-wider uppercase bg-[#18392b] text-[#61e294] border border-[#61e294]/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#61e294] animate-pulse" />
-            {t.brandTag}
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+
+          <div className="flex items-center gap-1.5">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5 text-[#f5c542] shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              <circle cx="12" cy="4" r="1.5" fill="#f5c542" />
+              <circle cx="18" cy="8" r="1.5" fill="#f5c542" />
+              <circle cx="6" cy="16" r="1.5" fill="#f5c542" />
+            </svg>
+            <h1 className="text-base font-bold tracking-tight text-white m-0 whitespace-nowrap">
+              <span className="text-[#f5c542]">TNV</span> Gold
+            </h1>
+          </div>
+
+          {/* Live badge — cực nhỏ, góc */}
+          <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-bold tracking-wider uppercase bg-[#18392b] text-[#61e294] border border-[#61e294]/30">
+            <span className="w-1 h-1 rounded-full bg-[#61e294] animate-pulse" />
+            LIVE
           </span>
         </div>
 
-        {/* Right: Session (compact) + Lang + Bell */}
-        <div className="flex items-center gap-2">
-          {/* Session pill — chỉ 1 dòng */}
-          <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[0.7rem]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#f5c542]" />
-            <span className="text-white font-semibold">{session.short}</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-gray-400 font-mono">10s</span>
-          </div>
-
+        {/* Right: Lang + Bell — siêu gọn */}
+        <div className="flex items-center gap-1">
           {/* Language Dropdown */}
           <div className="relative" ref={langMenuRef}>
             <button
@@ -167,6 +170,17 @@ export function HeroHeader() {
           </button>
         </div>
       </header>
+
+      {/* Session info dưới header — ẩn trên mobile */}
+      <div className="hidden md:flex items-center justify-between text-[0.7rem] text-gray-500 mb-3 px-1">
+        <span>
+          {t.brandTag} • <span className="text-[#f5c542] font-mono font-semibold">{session}</span>{" "}
+          session • 10s refresh
+        </span>
+        <span className="font-mono">
+          {new Date().toLocaleTimeString(language === "vi" ? "vi-VN" : "en-US", { hour: "2-digit", minute: "2-digit" })} UTC
+        </span>
+      </div>
 
       {/* Notifications Modal */}
       <NotificationModal
