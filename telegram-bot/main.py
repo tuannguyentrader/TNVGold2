@@ -18,6 +18,16 @@ import shutil
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+# Load .env NGAY TỪ ĐẦU (trước khi import bất kỳ module nào dùng os.environ)
+try:
+    from dotenv import load_dotenv
+    _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(_env_path):
+        load_dotenv(_env_path)
+        logging.getLogger("main").info("Loaded .env from %s", _env_path)
+except ImportError:
+    pass  # production có thể không cần python-dotenv
+
 sys.path.insert(0, os.path.dirname(__file__))
 import config
 from storage import init_db

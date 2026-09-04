@@ -27,7 +27,14 @@ import requests
 
 log = logging.getLogger("redis_writer")
 
-# Cấu hình — đọc từ environment (file .env ở local)
+# Load .env ở local (VPS Windows CMD dùng `set` thủ công cũng OK)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # tự tìm .env cạnh main.py
+except ImportError:
+    pass  # production không cần python-dotenv
+
+# Cấu hình — đọc từ environment (file .env ở local, hoặc `set` trong CMD)
 UPSTASH_URL = os.environ.get("KV_REST_API_URL", "").rstrip("/")
 UPSTASH_TOKEN = os.environ.get("KV_REST_API_TOKEN", "")
 

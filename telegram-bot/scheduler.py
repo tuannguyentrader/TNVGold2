@@ -10,9 +10,17 @@ Chạy trong thread riêng, dùng timezone VN (UTC+7).
 """
 
 import logging
+import os
 import time
 import threading
 from datetime import datetime, timedelta, timezone
+
+# Load .env ở local (VPS Windows CMD dùng `set` thủ công cũng OK)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 import config
 from storage import get_candles, save_report, kv_get, kv_set, get_tier, check_quota, incr_usage
