@@ -5,13 +5,13 @@ import { Bell, Key, Check, ChevronDown } from "lucide-react";
 import { NotificationModal } from "./NotificationModal";
 import { useLanguage } from "@/lib/language-context";
 
-function getActiveSession(): string {
+function getActiveSession(): { name: string; short: string } {
   const utcHour = new Date().getUTCHours();
-  if (utcHour >= 8 && utcHour < 13) return "London";
-  if (utcHour >= 13 && utcHour < 17) return "London & NY Overlap";
-  if (utcHour >= 17 && utcHour < 22) return "New York";
-  if (utcHour >= 22 || utcHour < 7) return "Tokyo";
-  return "London Pre-market";
+  if (utcHour >= 8 && utcHour < 13) return { name: "London", short: "LDN" };
+  if (utcHour >= 13 && utcHour < 17) return { name: "London & NY", short: "LDN•NY" };
+  if (utcHour >= 17 && utcHour < 22) return { name: "New York", short: "NY" };
+  if (utcHour >= 22 || utcHour < 7) return { name: "Tokyo", short: "TKY" };
+  return { name: "London Pre", short: "LDN-" };
 }
 
 export function HeroHeader() {
@@ -21,14 +21,12 @@ export function HeroHeader() {
   const [keySaved, setKeySaved] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const [session, setSession] = useState<string>("London Session");
+  const [session, setSession] = useState({ name: "London", short: "LDN" });
   const langMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSession(getActiveSession());
-    const interval = setInterval(() => {
-      setSession(getActiveSession());
-    }, 60000);
+    const interval = setInterval(() => setSession(getActiveSession()), 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -68,55 +66,54 @@ export function HeroHeader() {
 
   return (
     <>
-      <header className="flex items-center justify-between gap-3 py-3 mb-3 text-sm flex-wrap">
-        {/* Left: Brand -> TNV Gold */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-2">
-            <svg
-              viewBox="0 0 24 24"
-              className="w-6 h-6 text-[#f5c542]"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              <circle cx="12" cy="4" r="1.5" fill="#f5c542" />
-              <circle cx="18" cy="8" r="1.5" fill="#f5c542" />
-              <circle cx="6" cy="16" r="1.5" fill="#f5c542" />
-            </svg>
-            <h1 className="text-xl font-bold tracking-tight text-white m-0 flex items-center gap-1.5">
-              <span className="text-[#f5c542]">TNV</span>
-              <span>Gold</span>
-            </h1>
-          </div>
-
-          <span className="px-2 py-0.5 rounded-md text-[0.68rem] font-bold tracking-wider uppercase bg-[#18392b] text-[#61e294] border border-[#61e294]/30">
+      <header className="flex items-center justify-between gap-3 py-3 mb-3 text-sm">
+        {/* Left: Brand gọn — TNV Gold • LIVE */}
+        <div className="flex items-center gap-2">
+          <svg
+            viewBox="0 0 24 24"
+            className="w-6 h-6 text-[#f5c542]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            <circle cx="12" cy="4" r="1.5" fill="#f5c542" />
+            <circle cx="18" cy="8" r="1.5" fill="#f5c542" />
+            <circle cx="6" cy="16" r="1.5" fill="#f5c542" />
+          </svg>
+          <h1 className="text-lg font-bold tracking-tight text-white m-0 flex items-center gap-1.5">
+            <span className="text-[#f5c542]">TNV</span>
+            <span>Gold</span>
+          </h1>
+          <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-bold tracking-wider uppercase bg-[#18392b] text-[#61e294] border border-[#61e294]/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#61e294] animate-pulse" />
             {t.brandTag}
           </span>
         </div>
 
-        {/* Center: Tên phiên hiện tại • 10s refresh */}
-        <div className="hidden md:flex items-center gap-2 text-xs text-gray-300 font-medium">
-          <span className="text-[#f5c542] font-semibold">{session}</span>
-          <span className="text-gray-600">&bull;</span>
-          <span className="text-gray-400 font-mono text-[0.7rem]">10s refresh</span>
-        </div>
-
-        {/* Right: Language Dropdown Menu + Manage + Bell */}
+        {/* Right: Session (compact) + Lang + Bell */}
         <div className="flex items-center gap-2">
-          {/* Language Dropdown Menu */}
+          {/* Session pill — chỉ 1 dòng */}
+          <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[0.7rem]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#f5c542]" />
+            <span className="text-white font-semibold">{session.short}</span>
+            <span className="text-gray-500">•</span>
+            <span className="text-gray-400 font-mono">10s</span>
+          </div>
+
+          {/* Language Dropdown */}
           <div className="relative" ref={langMenuRef}>
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/10 bg-[#0e131f] hover:border-white/20 text-xs font-semibold text-gray-200 transition-all cursor-pointer"
+              className="flex items-center gap-1 px-2 py-1 rounded-md border border-white/10 bg-[#0e131f] hover:border-white/20 text-[0.7rem] font-semibold text-gray-200 transition-all cursor-pointer"
               title="Select Language"
               aria-expanded={showLangMenu}
             >
               <span>{language === "en" ? "🇬🇧" : "🇻🇳"}</span>
-              <span className="text-[0.7rem] uppercase">{language}</span>
+              <span className="uppercase">{language}</span>
               <ChevronDown className="w-3 h-3 text-gray-400" />
             </button>
 
@@ -159,16 +156,10 @@ export function HeroHeader() {
             )}
           </div>
 
-          <button
-            onClick={() => setShowKeyModal(true)}
-            className="px-3 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-200 transition-all cursor-pointer"
-          >
-            {t.manageBtn}
-          </button>
-
+          {/* Bell */}
           <button
             onClick={() => setShowNotificationModal(true)}
-            className="p-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
+            className="p-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-[#f5c542] hover:border-[#f5c542]/40 transition-all cursor-pointer"
             title="Notification Center"
             aria-label="Notification Center"
           >
