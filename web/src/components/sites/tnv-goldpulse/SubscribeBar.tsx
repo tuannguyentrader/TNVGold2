@@ -30,7 +30,7 @@ export function SubscribeBar() {
   return (
     <>
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-3 px-3.5 py-2 border-t border-[rgba(245,197,66,0.2)] bg-[rgba(245,197,66,0.04)] backdrop-blur-md text-[0.76rem] text-[rgba(230,230,230,0.85)] shadow-2xl animate-in slide-in-from-bottom duration-300"
+        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between gap-3 px-3 py-1.5 border-t border-[rgba(245,197,66,0.2)] bg-[rgba(245,197,66,0.04)] backdrop-blur-md text-[0.68rem] text-[rgba(230,230,230,0.85)] shadow-2xl animate-in slide-in-from-bottom duration-300"
       >
         <div className="flex items-center gap-2 max-w-[1220px] mx-auto w-full min-w-0">
           <AlertTriangle className="w-3.5 h-3.5 text-[#f5c542] shrink-0" />
