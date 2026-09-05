@@ -33,6 +33,34 @@ export function TechnicalGrid() {
   const vwapVal = ind.vwap >= 0 ? `+$${ind.vwap.toFixed(2)}` : `-$${Math.abs(ind.vwap).toFixed(2)}`;
   const spreadVal = `${ind.spread.toFixed(1)} Pips`;
 
+  // Note động theo data thật
+  const rsiNote = ind.rsi >= 70
+    ? "Overbought / Quá mua"
+    : ind.rsi >= 50
+    ? "Bullish Zone / Vùng tăng"
+    : ind.rsi >= 30
+    ? "Bearish Zone / Vùng giảm"
+    : "Oversold / Quá bán";
+  const atrNote = ind.price > 0
+    ? `${((ind.atr / ind.price) * 100).toFixed(2)}% of Price / Giá trị`
+    : "—";
+  const emaGapNote = ind.emaGap > 0
+    ? "Bullish Expansion / Mở rộng tăng"
+    : ind.emaGap < 0
+    ? "Bearish Expansion / Mở rộng giảm"
+    : "Neutral / Trung lập";
+  const adxNote = ind.adx >= 40
+    ? "Strong Trend / Xu hướng mạnh"
+    : ind.adx >= 20
+    ? "Moderate Trend / Xu hướng vừa"
+    : "Weak Trend / Xu hướng yếu";
+  const vwapNote = ind.vwap > 0
+    ? "Above VWAP / Trên VWAP"
+    : ind.vwap < 0
+    ? "Below VWAP / Dưới VWAP"
+    : "At VWAP / Tại VWAP";
+  const spreadNote = `${(ind.spread * 0.01).toFixed(2)} USD`;
+
   return (
     <section
       id="technical-grid"
@@ -43,7 +71,7 @@ export function TechnicalGrid() {
       <TechCard
         label={t.rsiLabel}
         value={rsiVal}
-        note={t.rsiNote}
+        note={rsiNote}
         tooltip={t.rsiTooltip}
       >
         {rangeBar(
@@ -60,7 +88,7 @@ export function TechnicalGrid() {
       <TechCard
         label={t.atrLabel}
         value={atrVal}
-        note={t.atrNote}
+        note={atrNote}
         tooltip={t.atrTooltip}
       >
         <div className="w-full h-[4px] rounded-full bg-white/10 overflow-hidden mt-1.5">
@@ -76,7 +104,7 @@ export function TechnicalGrid() {
             {emaGapVal}
           </span>
         }
-        note={t.emaGapNote}
+        note={emaGapNote}
         tooltip={t.emaGapTooltip}
       >
         <div className="w-full h-[4px] rounded-full bg-white/10 overflow-hidden mt-1.5">
@@ -91,7 +119,7 @@ export function TechnicalGrid() {
       <TechCard
         label={t.adxLabel}
         value={adxVal}
-        note={t.adxNote}
+        note={adxNote}
         tooltip={t.adxTooltip}
       >
         {rangeBar(
@@ -112,7 +140,7 @@ export function TechnicalGrid() {
             {vwapVal}
           </span>
         }
-        note={t.vwapNote}
+        note={vwapNote}
         tooltip={t.vwapTooltip}
       >
         <div className="text-[0.65rem] text-[#61e294] font-mono mt-1 flex items-center gap-1">
@@ -124,11 +152,11 @@ export function TechnicalGrid() {
       <TechCard
         label={t.spreadLabel}
         value={spreadVal}
-        note={t.spreadNote}
+        note={spreadNote}
         tooltip={t.spreadTooltip}
       >
-        <div className="text-[0.65rem] text-[#f5c542] font-mono mt-1">
-          Tight: ${(ind.spread * 0.1).toFixed(2)} USD
+        <div className="text-[0.65rem] text-gray-400 font-mono mt-1">
+          ≈ ${(ind.spread * 0.01).toFixed(2)} USD
         </div>
       </TechCard>
     </section>
