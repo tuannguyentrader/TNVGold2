@@ -21,7 +21,7 @@ export function InfoTip({ text }: InfoTipProps) {
 
   return (
     <div
-      className="relative"
+      className="absolute top-2 right-2 z-40"
       onMouseEnter={show}
       onMouseLeave={hide}
       onClick={(e) => e.stopPropagation()}
@@ -35,7 +35,7 @@ export function InfoTip({ text }: InfoTipProps) {
 
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-1.5 min-w-[220px] max-w-[300px] p-2.5 rounded-xl border border-[rgba(245,197,66,0.4)] bg-[#111622] text-[#fdfdfd] shadow-2xl text-[0.72rem] leading-relaxed z-[100] select-text break-words"
+          className="absolute right-0 top-full mt-1.5 min-w-[220px] max-w-[300px] p-2.5 rounded-xl border border-[rgba(245,197,66,0.4)] bg-[#111622] text-[#fdfdfd] shadow-2xl text-[0.72rem] leading-relaxed z-50 select-text break-words"
           onMouseEnter={show}
           onMouseLeave={hide}
         >
