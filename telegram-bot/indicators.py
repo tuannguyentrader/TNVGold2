@@ -211,16 +211,21 @@ def vwap(candles) -> float | None:
 
 def spread_estimate(candles) -> float | None:
     """
-    Spread ước lượng (pips) = (high - low) trung bình nến gần nhất.
-    Vàng (XAUUSD) 1 pip = 0.01, nhưng user trên web hiển thị 'Pips' generic.
-    Trả về (avg_high_low_diff) * 100 để ra pips (1.0 = 0.01 USD).
+    Spread ước lượng (pips) = (high - low) trung bình 5 nến gần nhất.
+    Lưu ý: Đây là "price range" (độ biến động) chứ KHÔNG phải bid-ask spread
+    thật. Bid-ask spread chỉ có từ MT5 broker.
+
+    XAUUSD: 1 pip = 0.01 USD
+    Trả về range trung bình (USD) chia 0.01 = pips
+    Ví dụ: nến có high-low = 0.05 USD → 5 pips
     """
     if len(candles) < 5:
         return None
     recent = candles[-5:]
     diffs = [c["high"] - c["low"] for c in recent]
-    avg = sum(diffs) / len(diffs)
-    return round(avg * 100, 2)  # pips
+    avg_range = sum(diffs) / len(diffs)
+    pips = avg_range / 0.01  # XAUUSD: 1 pip = 0.01 USD
+    return round(pips, 1)
 
 
 # ── Tổng hợp tất cả chỉ báo ─────────────────────────────
