@@ -40,7 +40,7 @@ export function MetricCard({
 
   return (
     <div
-      className={`relative rounded-xl p-3 bg-[#0e131f] border border-white/5 hover:border-[#f5c542]/30 transition-all h-[148px] max-h-[148px] select-none ${
+      className={`relative rounded-xl p-3 bg-[#0e131f] border border-white/5 hover:border-[#f5c542]/30 transition-all h-[140px] sm:h-[148px] max-h-[160px] sm:max-h-[148px] select-none ${
         isFlip ? "cursor-pointer" : ""
       } ${className}`}
       onClick={() => isFlip && setFlipped(!flipped)}
