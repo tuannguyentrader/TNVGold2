@@ -65,26 +65,42 @@ export interface Translations {
   rsiLabel: string;
   rsiNote: string;
   rsiTooltip: string;
+  // RSI zones (dynamic)
+  rsiOverbought: string;
+  rsiBullish: string;
+  rsiBearish: string;
+  rsiOversold: string;
 
   atrLabel: string;
   atrNote: string;
   atrTooltip: string;
+  atrUnit: string;
 
   emaGapLabel: string;
   emaGapNote: string;
   emaGapTooltip: string;
+  emaBullish: string;
+  emaBearish: string;
+  emaNeutral: string;
 
   adxLabel: string;
   adxNote: string;
   adxTooltip: string;
+  adxStrong: string;
+  adxModerate: string;
+  adxWeak: string;
 
   vwapLabel: string;
   vwapNote: string;
   vwapTooltip: string;
+  vwapAbove: string;
+  vwapBelow: string;
+  vwapAt: string;
 
   spreadLabel: string;
   spreadNote: string;
   spreadTooltip: string;
+  spreadUnit: string;
 
   // Gold Flow Analysis Chart
   flowTitle: string;
@@ -179,26 +195,41 @@ const translations: Record<Language, Translations> = {
     rsiLabel: "RSI (14)",
     rsiNote: "Bullish Zone",
     rsiTooltip: "Relative Strength Index 14-period. Above 50 indicates buyer control.",
+    rsiOverbought: "Overbought",
+    rsiBullish: "Bullish Zone",
+    rsiBearish: "Bearish Zone",
+    rsiOversold: "Oversold",
 
     atrLabel: "ATR (14)",
     atrNote: "0.44% of Price",
     atrTooltip: "Average True Range over the last 14 periods measuring price volatility.",
+    atrUnit: "of Price",
 
     emaGapLabel: "EMA GAP (9/21)",
     emaGapNote: "Bullish Expansion",
     emaGapTooltip: "Divergence spread between EMA 9 and EMA 21 measuring trend acceleration.",
+    emaBullish: "Bullish Expansion",
+    emaBearish: "Bearish Expansion",
+    emaNeutral: "Neutral",
 
     adxLabel: "ADX (14)",
     adxNote: "Strong Trend",
     adxTooltip: "Trend strength indicator. ADX > 25 confirms a strong trending market.",
+    adxStrong: "Strong Trend",
+    adxModerate: "Moderate Trend",
+    adxWeak: "Weak Trend",
 
     vwapLabel: "VWAP",
     vwapNote: "Above VWAP",
     vwapTooltip: "Price position relative to Volume Weighted Average Price.",
+    vwapAbove: "Above VWAP",
+    vwapBelow: "Below VWAP",
+    vwapAt: "At VWAP",
 
     spreadLabel: "SPREAD",
     spreadNote: "Tight Spread ($0.12)",
     spreadTooltip: "Current live Bid/Ask spread from the liquidity provider.",
+    spreadUnit: "USD",
 
     flowTitle: "Gold Flow Analysis",
     tabSession: "Session Flow",
@@ -288,26 +319,41 @@ const translations: Record<Language, Translations> = {
     rsiLabel: "RSI (14)",
     rsiNote: "Vùng Tăng giá",
     rsiTooltip: "Chỉ số sức mạnh tương quan 14 nến. Trên 50 thể hiện phe Mua kiểm soát.",
+    rsiOverbought: "Quá mua",
+    rsiBullish: "Vùng tăng",
+    rsiBearish: "Vùng giảm",
+    rsiOversold: "Quá bán",
 
     atrLabel: "ATR (14)",
     atrNote: "0.44% Giá trị",
     atrTooltip: "Biên độ dao động thực tế trung bình 14 nến gần nhất.",
+    atrUnit: "Giá trị",
 
     emaGapLabel: "EMA GAP (9/21)",
     emaGapNote: "Mở rộng Tăng",
     emaGapTooltip: "Khoảng cách phân kỳ giữa EMA 9 và EMA 21 đo lường gia tốc xu hướng.",
+    emaBullish: "Mở rộng tăng",
+    emaBearish: "Mở rộng giảm",
+    emaNeutral: "Trung lập",
 
     adxLabel: "ADX (14)",
     adxNote: "Xu hướng Mạnh",
     adxTooltip: "Độ mạnh xu hướng. ADX > 25 xác nhận thị trường có xu hướng rõ rệt.",
+    adxStrong: "Xu hướng mạnh",
+    adxModerate: "Xu hướng vừa",
+    adxWeak: "Xu hướng yếu",
 
     vwapLabel: "VWAP",
     vwapNote: "Trên mức VWAP",
     vwapTooltip: "Vị thế giá so với Đường giá trung bình theo khối lượng trong ngày.",
+    vwapAbove: "Trên VWAP",
+    vwapBelow: "Dưới VWAP",
+    vwapAt: "Tại VWAP",
 
     spreadLabel: "SPREAD",
     spreadNote: "Spread Thấp ($0.12)",
     spreadTooltip: "Độ chênh lệch giá Bid và Ask thực tế tại sàn giao dịch.",
+    spreadUnit: "USD",
 
     flowTitle: "Phân tích Luồng Phiên Vàng",
     tabSession: "Luồng Phiên",

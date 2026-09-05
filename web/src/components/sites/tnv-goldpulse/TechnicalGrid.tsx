@@ -33,33 +33,33 @@ export function TechnicalGrid() {
   const vwapVal = ind.vwap >= 0 ? `+$${ind.vwap.toFixed(2)}` : `-$${Math.abs(ind.vwap).toFixed(2)}`;
   const spreadVal = `${ind.spread.toFixed(1)} Pips`;
 
-  // Note động theo data thật
+  // Note động theo data — dùng i18n
   const rsiNote = ind.rsi >= 70
-    ? "Overbought / Quá mua"
+    ? t.rsiOverbought
     : ind.rsi >= 50
-    ? "Bullish Zone / Vùng tăng"
+    ? t.rsiBullish
     : ind.rsi >= 30
-    ? "Bearish Zone / Vùng giảm"
-    : "Oversold / Quá bán";
+    ? t.rsiBearish
+    : t.rsiOversold;
   const atrNote = pulse.price > 0
-    ? `${((ind.atr / pulse.price) * 100).toFixed(2)}% of Price / Giá trị`
+    ? `${((ind.atr / pulse.price) * 100).toFixed(2)}% ${t.atrUnit}`
     : "—";
   const emaGapNote = ind.emaGap > 0
-    ? "Bullish Expansion / Mở rộng tăng"
+    ? t.emaBullish
     : ind.emaGap < 0
-    ? "Bearish Expansion / Mở rộng giảm"
-    : "Neutral / Trung lập";
+    ? t.emaBearish
+    : t.emaNeutral;
   const adxNote = ind.adx >= 40
-    ? "Strong Trend / Xu hướng mạnh"
+    ? t.adxStrong
     : ind.adx >= 20
-    ? "Moderate Trend / Xu hướng vừa"
-    : "Weak Trend / Xu hướng yếu";
+    ? t.adxModerate
+    : t.adxWeak;
   const vwapNote = ind.vwap > 0
-    ? "Above VWAP / Trên VWAP"
+    ? t.vwapAbove
     : ind.vwap < 0
-    ? "Below VWAP / Dưới VWAP"
-    : "At VWAP / Tại VWAP";
-  const spreadNote = `${(ind.spread * 0.01).toFixed(2)} USD`;
+    ? t.vwapBelow
+    : t.vwapAt;
+  const spreadNote = `${(ind.spread * 0.01).toFixed(2)} ${t.spreadUnit}`;
 
   return (
     <section
