@@ -29,7 +29,7 @@ export function TNVGoldPulseApp() {
           <div className="rounded-2xl border border-[rgba(245,197,66,0.35)] bg-[#070b13] p-2.5 sm:p-3 md:p-3.5 shadow-2xl h-full flex flex-col justify-between">
             <div className="grid grid-cols-1 md:grid-cols-[1.32fr_1fr] gap-2.5 h-full items-stretch">
               {/* 6 Metric Cards */}
-              <div className="w-full h-full">
+              <div className="w-full h-full min-w-0">
                 <LiveMetricsGrid />
               </div>
 
