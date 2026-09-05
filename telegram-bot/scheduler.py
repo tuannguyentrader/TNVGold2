@@ -564,14 +564,15 @@ def _publish_pulse_to_redis():
             price=float(price),
             bias=bias,
             score=score,
-            # volatility chính là N-value (hiển thị ở VOLATILITY card)
-            volatility=float(n_val) if n_val else (float(atr_val) if atr_val else None),
+            # volatility = N-value (ATR 20 của TNVGold) — dùng cho SL/TP
+            volatility=float(n_val) if n_val else None,
             entry_price=entry_price,
             sl_price=sl_price,
             tp_price=tp_price,
             rsi=float(rsi_val) if rsi_val else None,
             ema_gap=float(ema_gap),
             adx=adx_val,
+            atr_14=float(atr_val) if atr_val else None,  # ATR 14 tách riêng
             vwap=vwap_val,
             spread=spread_val,
         )

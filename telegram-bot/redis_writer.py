@@ -83,7 +83,7 @@ def write_pulse(
     price: float,
     bias: str,           # "LONG" | "SHORT" | "NEUTRAL"
     score: float,
-    volatility: Optional[float] = None,   # N-value (TNV volatility)
+    volatility: Optional[float] = None,   # N-value (ATR 20 của TNV, dùng cho SL/TP)
     entry_price: Optional[float] = None,   # Donchian breakout price
     sl_price: Optional[float] = None,      # SL = entry ∓ 1.5N
     tp_price: Optional[float] = None,      # TP = entry ± 2.0N (CHỈ 1 TP)
@@ -92,6 +92,7 @@ def write_pulse(
     adx: Optional[float] = None,
     vwap: Optional[float] = None,
     spread: Optional[float] = None,
+    atr_14: Optional[float] = None,        # ATR 14 (chuẩn, tách riêng)
 ) -> bool:
     """
     Ghi pulse snapshot lên Redis. Bot gọi hàm này mỗi khi có tín hiệu mới
@@ -137,7 +138,8 @@ def write_pulse(
         },
         "indicators": {
             "rsi": float(rsi) if rsi is not None else 50.0,
-            "atr": float(volatility) if volatility is not None else 0.0,
+            # atr = ATR 14 (tách riêng khỏi volatility/N)
+            "atr": float(atr_14) if atr_14 is not None else 0.0,
             "emaGap": float(ema_gap) if ema_gap is not None else 0.0,
             "adx": float(adx) if adx is not None else 0.0,
             "vwap": float(vwap) if vwap is not None else 0.0,
