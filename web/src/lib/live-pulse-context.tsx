@@ -52,7 +52,10 @@ interface CachedPulse {
 
 /**
  * Load cache từ localStorage.
- * Trả về null nếu không có cache hoặc cache quá cũ (> 5 phút).
+ * Trả về null nếu:
+ *   - Không có cache
+ *   - Cache quá cũ (> 5 phút)
+ *   - Cache chứa data rỗng (price = 0) — bỏ qua, hiển thị default
  */
 function loadCache(): CachedPulse | null {
   if (typeof window === "undefined") return null;
@@ -62,6 +65,8 @@ function loadCache(): CachedPulse | null {
     const cache = JSON.parse(raw) as CachedPulse;
     // Bỏ qua cache quá cũ
     if (Date.now() - cache.cachedAt > CACHE_TTL_MS) return null;
+    // Bỏ qua cache rỗng (price=0) — tránh hiển thị '0' nhảy giữa chừng
+    if (!cache.pulse || cache.pulse.price <= 0) return null;
     return cache;
   } catch {
     return null;
@@ -70,6 +75,8 @@ function loadCache(): CachedPulse | null {
 
 function saveCache(data: CachedPulse) {
   if (typeof window === "undefined") return;
+  // Chỉ lưu cache khi có data thật (price > 0)
+  if (!data.pulse || data.pulse.price <= 0) return;
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch {
