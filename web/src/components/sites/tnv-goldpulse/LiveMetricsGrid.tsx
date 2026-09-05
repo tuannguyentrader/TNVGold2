@@ -152,10 +152,6 @@ export function LiveMetricsGrid() {
               <span className="text-gray-400 font-sans">TP <span className="text-[0.55rem] text-gray-500">(2.0N)</span>:</span>
               <span className="text-[#61e294] font-mono font-semibold">${pulse.tp.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-[0.65rem] leading-tight pt-0.5 border-t border-white/5">
-              <span className="text-gray-500 font-sans">R:R</span>
-              <span className="text-[#f5c542] font-mono font-semibold">1 : 1.33</span>
-            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm font-mono">
