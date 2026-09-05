@@ -15,7 +15,7 @@ import { ProUpgradeBar } from "./ProUpgradeBar";
 export function TNVGoldPulseApp() {
   return (
     <LivePulseProvider>
-      <main className="max-w-[1260px] mx-auto px-3 sm:px-4 py-3 pb-20 text-white font-sans">
+      <main className="max-w-[1260px] mx-auto px-2 sm:px-3 md:px-4 py-3 pb-20 text-white font-sans">
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
         <ProUpgradeBar />
@@ -26,7 +26,7 @@ export function TNVGoldPulseApp() {
         {/* Main Dashboard Top Section */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.22fr_1fr] gap-3.5 mb-4 items-stretch">
           {/* Left Golden Border Box: 6 Metrics + AI Analysis Panel */}
-          <div className="rounded-2xl border border-[rgba(245,197,66,0.35)] bg-[#070b13] p-3 sm:p-3.5 shadow-2xl h-full flex flex-col justify-between">
+          <div className="rounded-2xl border border-[rgba(245,197,66,0.35)] bg-[#070b13] p-2.5 sm:p-3 md:p-3.5 shadow-2xl h-full flex flex-col justify-between">
             <div className="grid grid-cols-1 md:grid-cols-[1.32fr_1fr] gap-2.5 h-full items-stretch">
               {/* 6 Metric Cards */}
               <div className="w-full h-full">
