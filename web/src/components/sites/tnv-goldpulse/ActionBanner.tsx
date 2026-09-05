@@ -49,7 +49,7 @@ export function ActionBanner() {
 
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 mb-4 rounded-xl border text-xs shadow-md overflow-hidden ${
+      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 mb-4 rounded-xl border text-xs sm:text-sm shadow-md overflow-hidden ${
         isLong
           ? "border-[rgba(97,226,148,0.35)] bg-[#070e12]"
           : isShort
