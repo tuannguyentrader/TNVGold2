@@ -15,7 +15,7 @@ import { ProUpgradeBar } from "./ProUpgradeBar";
 export function TNVGoldPulseApp() {
   return (
     <LivePulseProvider>
-      <main className="max-w-[1260px] mx-auto px-2 sm:px-3 md:px-4 py-3 pb-44 text-white font-sans">
+      <main className="max-w-[1260px] mx-auto px-2 sm:px-3 md:px-4 py-3 pb-32 md:pb-44 text-white font-sans">
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
         <ProUpgradeBar />
@@ -40,20 +40,24 @@ export function TNVGoldPulseApp() {
             </div>
           </div>
 
-          {/* Right Expanded Box: News + Live Gold Price Chart */}
-          <div className="flex flex-col gap-3 h-full justify-between">
+          {/* Right Expanded Box: News + Live Gold Price Chart — chỉ hiện md+ */}
+          <div className="hidden lg:flex flex-col gap-3 h-full justify-between">
             <SponsorCard />
             <LiveGoldPriceChart />
           </div>
         </div>
 
-        {/* 4. Technical Indicators Grid */}
-        <TechnicalGrid />
+        {/* 4. Technical Indicators Grid — chỉ hiện md+ */}
+        <div className="hidden md:block">
+          <TechnicalGrid />
+        </div>
 
-        {/* 5. Gold Session Flow Chart */}
-        <ChartSection />
+        {/* 5. Gold Session Flow Chart — chỉ hiện md+ */}
+        <div className="hidden md:block">
+          <ChartSection />
+        </div>
 
-        {/* 6. Ring Buffer Snapshot History Table */}
+        {/* 6. Ring Buffer Snapshot History Table — luôn hiện (compact mobile) */}
         <HistoryTable />
 
         {/* 7. Regulatory Footer */}

@@ -35,7 +35,7 @@ export function ProUpgradeBar() {
     <>
       <div
         id="qx-pro-bar"
-        className="flex items-center justify-between gap-3 px-3.5 py-2.5 mb-4 rounded-xl bg-gradient-to-r from-[rgba(97,226,148,0.12)] via-[rgba(97,226,148,0.06)] to-[rgba(245,197,66,0.08)] border border-[rgba(97,226,148,0.3)] text-[0.8rem] text-[#e8f5e9] flex-wrap shadow-sm"
+        className="hidden md:flex items-center justify-between gap-3 px-3.5 py-2.5 mb-4 rounded-xl bg-gradient-to-r from-[rgba(97,226,148,0.12)] via-[rgba(97,226,148,0.06)] to-[rgba(245,197,66,0.08)] border border-[rgba(97,226,148,0.3)] text-[0.8rem] text-[#e8f5e9] flex-wrap shadow-sm"
       >
         <div className="flex items-center gap-2">
           <div className="p-1 rounded-md bg-[rgba(97,226,148,0.2)] text-[#61e294]">
