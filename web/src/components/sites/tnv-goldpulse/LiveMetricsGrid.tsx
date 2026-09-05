@@ -33,7 +33,7 @@ export function LiveMetricsGrid() {
         label={t.biasLabel}
         tooltip={t.biasTooltip}
         footer={
-          <div className="text-[0.68rem] text-gray-400">
+          <div className="text-[0.65rem] text-gray-400">
             {language === "vi"
               ? `Cách ${pulse.signalAge ?? 0} phút`
               : `${pulse.signalAge ?? 0} min ago`}
@@ -47,7 +47,7 @@ export function LiveMetricsGrid() {
           className={`flex items-center gap-1 ${
             isLong || isShort
               ? "text-lg sm:text-2xl font-bold tracking-tight"
-              : "text-sm sm:text-base font-normal text-gray-500"
+              : "text-base sm:text-lg font-normal text-gray-500"
           } ${
             isLong
               ? "text-[#61e294]"
@@ -94,7 +94,7 @@ export function LiveMetricsGrid() {
         label={t.volatilityLabel}
         tooltip={t.volatilityTooltip}
         footer={
-          <div className="flex items-center justify-between text-[0.68rem] text-gray-400">
+          <div className="flex items-center justify-between text-[0.65rem] text-gray-400">
             <span>Status:</span>
             <span className="text-[#61e294] font-medium">{t.volatilityStatus}</span>
           </div>
@@ -115,16 +115,16 @@ export function LiveMetricsGrid() {
         flipBack={<FlipBackContent label="ENTRY" rows={tfPlaceholderRows} />}
       >
         <div className="flex flex-col gap-0.5">
-          <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
+          <div className="flex items-center justify-between text-[0.7rem]">
             <span className="text-gray-400 font-sans">Entry:</span>
-            <span className="text-white font-mono font-bold text-sm sm:text-base">
+            <span className="text-white font-mono font-bold text-xs sm:text-sm">
               {isNeutral ? "—" : `$${(isLong ? pulse.entry.high : pulse.entry.low).toFixed(2)}`}
             </span>
           </div>
-          <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
+          <div className="flex items-center justify-between text-[0.7rem]">
             <span className="text-gray-400 font-sans">Gain:</span>
             <span
-              className={`font-mono font-semibold text-sm sm:text-base ${
+              className={`font-mono font-semibold text-xs sm:text-sm ${
                 pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
               }`}
             >
@@ -150,19 +150,19 @@ export function LiveMetricsGrid() {
             else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
             return (
               <>
-                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
+                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">SL:</span>
                   <span className="text-[#ff8383] font-mono font-semibold">${sl.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
+                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP1:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp1.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
+                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP2:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
+                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP3:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp3.toFixed(2)}</span>
                 </div>
@@ -177,7 +177,7 @@ export function LiveMetricsGrid() {
         label={t.htfLabel}
         tooltip={t.htfTooltip}
         footer={
-          <div className="flex items-center justify-between text-[0.68rem] text-gray-400">
+          <div className="flex items-center justify-between text-[0.65rem] text-gray-400">
             <span className="text-gray-400">{t.htfFooter}</span>
             <span className="text-[#61e294] font-semibold">{pulse.htf}</span>
           </div>
@@ -189,10 +189,10 @@ export function LiveMetricsGrid() {
             <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
-            <div className="text-sm sm:text-base font-bold text-[#61e294] tracking-tight leading-tight truncate">
+            <div className="text-xs sm:text-base font-bold text-[#61e294] tracking-tight leading-tight truncate">
               {pulse.htf}
             </div>
-            <div className="text-[0.58rem] sm:text-[0.62rem] text-gray-400 font-mono mt-0.5 truncate">
+            <div className="text-[0.65rem] text-gray-400 font-mono mt-0.5 truncate">
               M15 · M30 · H1
             </div>
           </div>
