@@ -50,9 +50,7 @@ export function ActionBanner() {
   return (
     <div
       className={`flex items-center justify-between gap-3 px-4 py-2.5 mb-4 rounded-xl border text-xs shadow-md ${
-        !hasData
-          ? "border-[rgba(255,255,255,0.1)] bg-[#0b0f16]"
-          : isLong
+        isLong
           ? "border-[rgba(97,226,148,0.35)] bg-[#070e12]"
           : isShort
           ? "border-[rgba(255,96,96,0.35)] bg-[#130707]"
@@ -63,9 +61,7 @@ export function ActionBanner() {
       <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
         <span
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-[0.68rem] border shrink-0 ${
-            !hasData
-              ? "bg-white/5 text-gray-400 border-white/10"
-              : isLong
+            isLong
               ? "bg-[rgba(97,226,148,0.18)] text-[#61e294] border-[rgba(97,226,148,0.3)]"
               : isShort
               ? "bg-[rgba(255,96,96,0.18)] text-[#ff8383] border-[rgba(255,96,96,0.3)]"
@@ -73,7 +69,7 @@ export function ActionBanner() {
           }`}
         >
           <Zap className="w-3 h-3 fill-current" />
-          {!hasData ? "TNV IDLE" : isNeutral ? "TNV NEUTRAL" : "TNV SIGNAL"}
+          TNV SIGNAL
         </span>
         <div className="truncate text-gray-200 font-medium font-mono text-[0.74rem]">
           {actionText}
