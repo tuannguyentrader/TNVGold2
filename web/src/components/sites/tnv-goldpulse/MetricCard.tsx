@@ -40,7 +40,7 @@ export function MetricCard({
 
   return (
     <div
-      className={`relative rounded-xl p-2.5 sm:p-3 bg-[#0e131f] border border-white/5 hover:border-[#f5c542]/30 transition-all min-w-0 overflow-hidden select-none ${
+      className={`relative rounded-lg p-2 sm:p-3 bg-[#0e131f] border border-white/5 hover:border-[#f5c542]/30 transition-all min-w-0 overflow-hidden select-none h-[110px] sm:h-[140px] md:h-[148px] ${
         isFlip ? "cursor-pointer" : ""
       } ${className}`}
       onClick={() => isFlip && setFlipped(!flipped)}
@@ -52,7 +52,7 @@ export function MetricCard({
         }
       }}
     >
-      {tooltip && <InfoTip text={tooltip} />}
+      {tooltip && <span className="hidden sm:block"><InfoTip text={tooltip} /></span>}
 
       {!flipped ? (
         <div className="flex flex-col justify-between h-full w-full">

@@ -27,7 +27,7 @@ export function LiveMetricsGrid() {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full min-w-0">
+    <div className="grid grid-cols-2 gap-2 w-full min-w-0">
       {/* 1. BIAS */}
       <MetricCard
         label={t.biasLabel}
@@ -44,10 +44,10 @@ export function LiveMetricsGrid() {
         }
       >
         <div
-          className={`flex items-center gap-1.5 ${
+          className={`flex items-center gap-1 ${
             isLong || isShort
-              ? "text-2xl font-bold tracking-tight"
-              : "text-base font-normal text-gray-500"
+              ? "text-lg sm:text-2xl font-bold tracking-tight"
+              : "text-sm sm:text-base font-normal text-gray-500"
           } ${
             isLong
               ? "text-[#61e294]"
@@ -57,11 +57,11 @@ export function LiveMetricsGrid() {
           }`}
         >
           {isLong ? (
-            <TrendingUp className="w-5 h-5" />
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
           ) : isShort ? (
-            <TrendingDown className="w-5 h-5" />
+            <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
           ) : (
-            <Minus className="w-4 h-4" />
+            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
           )}
           <span>{isLong || isShort ? pulse.bias : "—"}</span>
         </div>
@@ -76,7 +76,7 @@ export function LiveMetricsGrid() {
       >
         <div className="flex items-center justify-center h-full">
           <span
-            className={`text-4xl font-bold font-mono ${
+            className={`text-2xl sm:text-4xl font-bold font-mono ${
               pulseScore >= 8
                 ? "text-[#61e294]"
                 : pulseScore >= 5
@@ -103,8 +103,8 @@ export function LiveMetricsGrid() {
           <FlipBackContent label={t.volatilityLabel} rows={tfPlaceholderRows} />
         }
       >
-        <div className="text-2xl font-bold text-white font-mono tracking-tight">
-          ${pulse.volatility.toFixed(2)} <span className="text-xs text-gray-400 font-normal">USD</span>
+        <div className="text-lg sm:text-2xl font-bold text-white font-mono tracking-tight">
+          ${pulse.volatility.toFixed(2)} <span className="text-[0.65rem] sm:text-xs text-gray-400 font-normal">USD</span>
         </div>
       </MetricCard>
 
@@ -115,16 +115,16 @@ export function LiveMetricsGrid() {
         flipBack={<FlipBackContent label="ENTRY" rows={tfPlaceholderRows} />}
       >
         <div className="flex flex-col gap-0.5">
-          <div className="flex items-center justify-between text-[0.7rem]">
+          <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
             <span className="text-gray-400 font-sans">Entry:</span>
-            <span className="text-white font-mono font-bold text-base">
+            <span className="text-white font-mono font-bold text-sm sm:text-base">
               {isNeutral ? "—" : `$${(isLong ? pulse.entry.high : pulse.entry.low).toFixed(2)}`}
             </span>
           </div>
-          <div className="flex items-center justify-between text-[0.7rem]">
+          <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
             <span className="text-gray-400 font-sans">Gain:</span>
             <span
-              className={`font-mono font-semibold text-base ${
+              className={`font-mono font-semibold text-sm sm:text-base ${
                 pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
               }`}
             >
@@ -150,19 +150,19 @@ export function LiveMetricsGrid() {
             else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
             return (
               <>
-                <div className="flex items-center justify-between text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
                   <span className="text-gray-400 font-sans">SL:</span>
                   <span className="text-[#ff8383] font-mono font-semibold">${sl.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
                   <span className="text-gray-400 font-sans">TP1:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp1.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.7rem]">
+                <div className="hidden sm:flex items-center justify-between text-[0.7rem]">
                   <span className="text-gray-400 font-sans">TP2:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.7rem]">
+                <div className="hidden sm:flex items-center justify-between text-[0.7rem]">
                   <span className="text-gray-400 font-sans">TP3:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp3.toFixed(2)}</span>
                 </div>
@@ -184,15 +184,15 @@ export function LiveMetricsGrid() {
         }
         flipBack={<FlipBackContent label={t.htfLabel} rows={tfPlaceholderRows} />}
       >
-        <div className="flex items-center gap-2.5 my-0.5">
-          <div className="p-1.5 rounded-lg bg-[rgba(97,226,148,0.15)] text-[#61e294] border border-[rgba(97,226,148,0.3)] shrink-0">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="flex items-center gap-1.5 sm:gap-2.5 my-0.5">
+          <div className="p-1 sm:p-1.5 rounded-lg bg-[rgba(97,226,148,0.15)] text-[#61e294] border border-[rgba(97,226,148,0.3)] shrink-0">
+            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <div className="text-base font-bold text-[#61e294] tracking-tight leading-tight">
+          <div className="min-w-0">
+            <div className="text-sm sm:text-base font-bold text-[#61e294] tracking-tight leading-tight truncate">
               {pulse.htf}
             </div>
-            <div className="text-[0.62rem] text-gray-400 font-mono mt-0.5">
+            <div className="text-[0.58rem] sm:text-[0.62rem] text-gray-400 font-mono mt-0.5 truncate">
               M15 · M30 · H1
             </div>
           </div>
