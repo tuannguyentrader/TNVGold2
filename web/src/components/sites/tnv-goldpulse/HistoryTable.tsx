@@ -112,8 +112,8 @@ export function HistoryTable() {
                   </span>
                 </td>
                 <td className="py-2.5 px-3.5 text-gray-300">${row.volatility.toFixed(2)}</td>
-                <td className="py-2.5 px-3.5 text-white">${row.entry.high.toFixed(2)}</td>
-                <td className="py-2.5 px-3.5 text-gray-300">${row.entry.low.toFixed(2)}</td>
+                <td className="py-2.5 px-3.5 text-white">${row.entry.price != null ? row.entry.price.toFixed(2) : "—"}</td>
+                <td className="py-2.5 px-3.5 text-[#ff8383]">{row.sl != null ? row.sl.toFixed(2) : "—"}</td>
                 <td className="py-2.5 px-3.5 text-[#61e294]">{row.htf}</td>
               </tr>
             ))}

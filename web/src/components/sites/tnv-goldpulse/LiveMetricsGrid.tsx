@@ -116,19 +116,21 @@ export function LiveMetricsGrid() {
       >
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center justify-between text-[0.7rem]">
-            <span className="text-gray-400 font-sans">Entry:</span>
+            <span className="text-gray-400 font-sans">Price:</span>
             <span className="text-white font-mono font-bold text-xs sm:text-sm">
-              {isNeutral ? "—" : `$${(isLong ? pulse.entry.high : pulse.entry.low).toFixed(2)}`}
+              {pulse.entry.price != null ? `$${pulse.entry.price.toFixed(2)}` : "—"}
             </span>
           </div>
           <div className="flex items-center justify-between text-[0.7rem]">
             <span className="text-gray-400 font-sans">Gain:</span>
             <span
               className={`font-mono font-semibold text-xs sm:text-sm ${
-                pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
+                pulse.entry.gain != null && pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
               }`}
             >
-              {pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2)}
+              {pulse.entry.gain != null
+                ? (pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}%` : `${pulse.entry.gain.toFixed(2)}%`)
+                : "—"}
             </span>
           </div>
         </div>
@@ -140,36 +142,30 @@ export function LiveMetricsGrid() {
         tooltip={t.exitTooltip}
         flipBack={<FlipBackContent label="EXIT" rows={tfPlaceholderRows} />}
       >
-        <div className="flex flex-col gap-0.5">
-          {(() => {
-            const v = pulse.volatility || 0;
-            const p = pulse.price || 0;
-            let sl, tp1, tp2, tp3;
-            if(isLong)       { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
-            else if(isShort) { sl = p + 2*v; tp1 = p - 1*v; tp2 = p - 2*v; tp3 = p - 3*v; }
-            else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
-            return (
-              <>
-                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-                  <span className="text-gray-400 font-sans">SL:</span>
-                  <span className="text-[#ff8383] font-mono font-semibold">${sl.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-                  <span className="text-gray-400 font-sans">TP1:</span>
-                  <span className="text-[#61e294] font-mono font-semibold">${tp1.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-                  <span className="text-gray-400 font-sans">TP2:</span>
-                  <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-                  <span className="text-gray-400 font-sans">TP3:</span>
-                  <span className="text-[#61e294] font-mono font-semibold">${tp3.toFixed(2)}</span>
-                </div>
-              </>
-            );
-          })()}
-        </div>
+        {pulse.sl != null && pulse.tp1 != null ? (
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">SL:</span>
+              <span className="text-[#ff8383] font-mono font-semibold">${pulse.sl.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">TP1:</span>
+              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp1.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">TP2:</span>
+              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp2?.toFixed(2) ?? "—"}</span>
+            </div>
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">TP3:</span>
+              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp3?.toFixed(2) ?? "—"}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500 text-sm font-mono">
+            —
+          </div>
+        )}
       </MetricCard>
 
       {/* 6. HTF FILTER */}

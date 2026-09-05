@@ -15,7 +15,9 @@ export function ActionBanner() {
   const isNeutral = pulse.bias === "NEUTRAL";
   const hasData = pulse.price > 0;
 
-  const gainStr = pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2);
+  const gainStr = pulse.entry.gain != null
+    ? (pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}%` : `${pulse.entry.gain.toFixed(2)}%`)
+    : "—";
 
   let actionText: string;
   if (!hasData) {
@@ -23,15 +25,19 @@ export function ActionBanner() {
       ? "Đang chờ dữ liệu từ hệ thống..."
       : "Waiting for data from system...";
   } else if (isNeutral) {
+    const rangeLow = (pulse.price - pulse.volatility).toFixed(2);
+    const rangeHigh = (pulse.price + pulse.volatility).toFixed(2);
     actionText =
       language === "vi"
-        ? `XAUUSD TRUNG LẬP • Giá: $${pulse.price.toFixed(2)} • Biên độ: ${pulse.entry.low.toFixed(2)}–${pulse.entry.high.toFixed(2)}`
-        : `XAUUSD NEUTRAL • Price: $${pulse.price.toFixed(2)} • Range: ${pulse.entry.low.toFixed(2)}–${pulse.entry.high.toFixed(2)}`;
+        ? `XAUUSD TRUNG LẬP • Giá: $${pulse.price.toFixed(2)} • Biên độ: $${rangeLow}–$${rangeHigh}`
+        : `XAUUSD NEUTRAL • Price: $${pulse.price.toFixed(2)} • Range: $${rangeLow}–$${rangeHigh}`;
   } else {
+    const entryRef = pulse.entry.price != null ? `$${pulse.entry.price.toFixed(2)}` : "—";
+    const slRef = pulse.sl != null ? `$${pulse.sl.toFixed(2)}` : "—";
     actionText =
       language === "vi"
-        ? `XAUUSD ${pulse.bias} • Giá vào: $${pulse.entry.high.toFixed(2)} • Hiện tại: $${pulse.price.toFixed(2)} (${gainStr}) • Dừng lỗ: $${pulse.exit.toFixed(2)}`
-        : `XAUUSD ${pulse.bias} • Entry: $${pulse.entry.high.toFixed(2)} • Now: $${pulse.price.toFixed(2)} (${gainStr}) • Stop: $${pulse.exit.toFixed(2)}`;
+        ? `XAUUSD ${pulse.bias} • Giá vào: ${entryRef} • Hiện tại: $${pulse.price.toFixed(2)} (${gainStr}) • Dừng lỗ: ${slRef}`
+        : `XAUUSD ${pulse.bias} • Entry: ${entryRef} • Now: $${pulse.price.toFixed(2)} (${gainStr}) • Stop: ${slRef}`;
   }
 
   const handleShare = async () => {

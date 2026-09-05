@@ -38,12 +38,16 @@ export interface PulseSnapshot {
   bias: "LONG" | "SHORT" | "NEUTRAL";
   score: number;
   volatility: number;
+  // ENTRY: chỉ có khi bias = LONG/SHORT (null khi NEUTRAL)
   entry: {
-    high: number;
-    low: number;
-    gain: number;
+    price: number | null;   // giá breakout từ signal
+    gain: number | null;     // % thay đổi từ entry đến hiện tại
   };
-  exit: number;
+  // EXIT levels: chỉ có khi bias = LONG/SHORT
+  sl: number | null;
+  tp1: number | null;
+  tp2: number | null;
+  tp3: number | null;
   exitSignal?: boolean;
   signalAge?: number;
   htf: string;
@@ -71,11 +75,13 @@ const defaultSnapshot: PulseSnapshot = {
   score: 0,
   volatility: 0,
   entry: {
-    high: 0,
-    low: 0,
-    gain: 0,
+    price: null,
+    gain: null,
   },
-  exit: 0,
+  sl: null,
+  tp1: null,
+  tp2: null,
+  tp3: null,
   exitSignal: false,
   signalAge: 0,
   htf: "—",

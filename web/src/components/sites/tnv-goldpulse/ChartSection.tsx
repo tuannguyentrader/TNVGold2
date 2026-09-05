@@ -20,7 +20,7 @@ export function ChartSection() {
         </div>
 
         {/* TradingView Live Chart */}
-        <div className="relative w-full h-[400px] my-2 bg-[#06080e] rounded-xl border border-white/5 overflow-hidden">
+        <div className="relative w-full h-[260px] sm:h-[320px] md:h-[360px] lg:h-[400px] my-2 bg-[#06080e] rounded-xl border border-white/5 overflow-hidden">
           <iframe
             src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost"
             className="w-full h-full border-0"

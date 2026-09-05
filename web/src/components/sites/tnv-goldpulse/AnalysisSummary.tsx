@@ -25,16 +25,23 @@ export function AnalysisSummary() {
     if (pulse.analysisText?.[language]) return pulse.analysisText[language]!;
 
     const pulseVal = gaugeValue;
-    const gainText = pulse.entry.gain >= 0
-      ? `+$${pulse.entry.gain.toFixed(2)}`
-      : `-$${Math.abs(pulse.entry.gain).toFixed(2)}`;
+    // entry price (breakout) hoặc current price nếu NEUTRAL
+    const entryRef = pulse.entry.price ?? pulse.price;
+    // resistance/support logic
+    const resistance = pulse.tp1 ?? pulse.price;
+    const support = pulse.sl ?? pulse.price;
+    // gain text
+    const gainVal = pulse.entry.gain ?? 0;
+    const gainText = gainVal >= 0
+      ? `+${gainVal.toFixed(2)}%`
+      : `${gainVal.toFixed(2)}%`;
 
     // NEUTRAL case
     if (pulse.bias === "NEUTRAL") {
       if (language === "vi") {
-        return `Vàng đang giao dịch đi ngang với xung lực Pulse đạt ${pulseVal}, giá ổn định trong biên độ $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Cấu trúc đa khung thời gian chưa có sự đồng thuận rõ ràng. Theo dõi: phá vỡ trên $${pulse.entry.high.toFixed(2)} để xác nhận đà tăng, hoặc thủng $${pulse.entry.low.toFixed(2)} để kích hoạt xu hướng giảm.`;
+        return `Vàng đang giao dịch đi ngang với xung lực Pulse đạt ${pulseVal}, giá ổn định quanh $${pulse.price.toFixed(2)}. Cấu trúc đa khung thời gian chưa có sự đồng thuận rõ ràng. Theo dõi: phá vỡ trên $${(pulse.price + pulse.volatility).toFixed(2)} để xác nhận đà tăng, hoặc thủng $${(pulse.price - pulse.volatility).toFixed(2)} để kích hoạt xu hướng giảm.`;
       }
-      return `Gold is trading sideways with Pulse reaching ${pulseVal}, price holding within a range of $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Multi-timeframe structure is not providing clear directional alignment. Watch for: a breakout above $${pulse.entry.high.toFixed(2)} to confirm upside momentum, or a breakdown below $${pulse.entry.low.toFixed(2)} to trigger bearish bias.`;
+      return `Gold is trading sideways with Pulse reaching ${pulseVal}, price holding around $${pulse.price.toFixed(2)}. Multi-timeframe structure is not providing clear directional alignment. Watch for: a breakout above $${(pulse.price + pulse.volatility).toFixed(2)} to confirm upside momentum, or a breakdown below $${(pulse.price - pulse.volatility).toFixed(2)} to trigger bearish bias.`;
     }
 
     const direction = pulse.bias === "LONG"
@@ -48,11 +55,6 @@ export function AnalysisSummary() {
     const alignment = pulse.bias === "LONG"
       ? (language === "vi" ? "tăng" : "bullish")
       : (language === "vi" ? "giảm" : "bearish");
-
-    const resistance = pulse.bias === "LONG"
-      ? pulse.entry.high
-      : pulse.entry.low;
-    const support = pulse.exit;
 
     // SHORT bias
     if (pulse.bias === "SHORT") {

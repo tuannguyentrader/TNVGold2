@@ -7,11 +7,13 @@ Mục đích: Web dashboard (/goldpulse) đọc pulse từ Redis. Thay vì đợ
 Schema ở Web (src/lib/pulse-store.ts):
   PulseSnapshot = {
     symbol, time, price, bias, score, volatility,
-    entry: { high, low, gain },
-    exit, exitSignal?, signalAge?, htf,
-    multiTf: { m15, m30, h1 },
-    indicators: { rsi, atr, emaGap, adx, vwap, spread }
+    entry: { price, gain },   // entry price breakout (chỉ có khi LONG/SHORT)
+    sl, tp1, tp2, tp3,         // SL + 3 targets (chỉ có khi LONG/SHORT)
+    htf, multiTf, indicators
   }
+
+Khi bias = NEUTRAL: entry/sl/tp1/tp2/tp3 = null
+Khi bias = LONG/SHORT: có đủ 5 giá trị từ signal
 
 Tên key Redis: 'tnv:current_pulse' (giống Web dùng)
 TTL: 60 giây (giống Web đặt)
@@ -76,7 +78,11 @@ def write_pulse(
     bias: str,           # "LONG" | "SHORT" | "NEUTRAL"
     score: float,
     volatility: Optional[float] = None,   # ATR
-    exit_price: Optional[float] = None,   # TP target
+    entry_price: Optional[float] = None,   # giá breakout (LONG/SHORT)
+    sl_price: Optional[float] = None,      # giá stop-loss
+    tp1_price: Optional[float] = None,     # target 1
+    tp2_price: Optional[float] = None,     # target 2
+    tp3_price: Optional[float] = None,     # target 3
     rsi: Optional[float] = None,
     ema_gap: Optional[float] = None,
     adx: Optional[float] = None,
@@ -87,11 +93,17 @@ def write_pulse(
     Ghi pulse snapshot lên Redis. Bot gọi hàm này mỗi khi có tín hiệu mới
     (mỗi 5 phút từ scheduler_loop).
 
-    Tất cả các trường optional đều có default 0/an toàn nếu không có.
+    Khi bias = NEUTRAL: entry/sl/tp1/tp2/tp3 = None (không có tín hiệu)
+    Khi bias = LONG/SHORT: truyền đủ 5 giá trị entry/sl/tp1/tp2/tp3
     """
     if price is None or price <= 0:
         log.debug("redis_writer: skip write — price invalid (%s)", price)
         return False
+
+    # Tính gain: (current_price - entry_price) / entry_price * 100
+    gain = 0.0
+    if entry_price and entry_price > 0:
+        gain = round(((price - entry_price) / entry_price) * 100, 2)
 
     snapshot = {
         "symbol": "XAUUSD",
@@ -100,12 +112,16 @@ def write_pulse(
         "bias": bias if bias in ("LONG", "SHORT", "NEUTRAL") else "NEUTRAL",
         "score": float(score) if score is not None else 0.0,
         "volatility": float(volatility) if volatility is not None else 0.0,
+        # ENTRY — chỉ có giá trị khi LONG/SHORT
         "entry": {
-            "high": float(exit_price) if exit_price else float(price),
-            "low": float(price),
-            "gain": 0.0,
+            "price": float(entry_price) if entry_price else None,
+            "gain": gain if entry_price else None,
         },
-        "exit": float(exit_price) if exit_price else float(price),
+        # EXIT levels — chỉ có khi LONG/SHORT
+        "sl": float(sl_price) if sl_price else None,
+        "tp1": float(tp1_price) if tp1_price else None,
+        "tp2": float(tp2_price) if tp2_price else None,
+        "tp3": float(tp3_price) if tp3_price else None,
         "htf": bias,
         "multiTf": {
             "m15": {"bias": bias, "score": float(score) if score else 0},
