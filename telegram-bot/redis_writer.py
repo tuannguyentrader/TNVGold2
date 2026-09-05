@@ -8,12 +8,18 @@ Schema ở Web (src/lib/pulse-store.ts):
   PulseSnapshot = {
     symbol, time, price, bias, score, volatility,
     entry: { price, gain },   // entry price breakout (chỉ có khi LONG/SHORT)
-    sl, tp1, tp2, tp3,         // SL + 3 targets (chỉ có khi LONG/SHORT)
+    sl, tp,                    // SL = entry ∓ 1.5N, TP = entry ± 2.0N (TNV logic)
     htf, multiTf, indicators
   }
 
-Khi bias = NEUTRAL: entry/sl/tp1/tp2/tp3 = null
-Khi bias = LONG/SHORT: có đủ 5 giá trị từ signal
+TNVGold logic (Donchian 20/10 + N-value):
+  Entry: e_high / e_low (Donchian 20 nến)
+  SL:    entry ∓ 1.5 × N
+  TP:    entry ± 2.0 × N (CHỈ 1 TP, không có TP1/TP2/TP3)
+  N:     n_value (volatility thật của TNV)
+
+Khi bias = NEUTRAL: entry/sl/tp = null
+Khi bias = LONG/SHORT: có đủ 3 giá trị từ signal
 
 Tên key Redis: 'tnv:current_pulse' (giống Web dùng)
 TTL: 60 giây (giống Web đặt)
@@ -77,12 +83,10 @@ def write_pulse(
     price: float,
     bias: str,           # "LONG" | "SHORT" | "NEUTRAL"
     score: float,
-    volatility: Optional[float] = None,   # ATR
-    entry_price: Optional[float] = None,   # giá breakout (LONG/SHORT)
-    sl_price: Optional[float] = None,      # giá stop-loss
-    tp1_price: Optional[float] = None,     # target 1
-    tp2_price: Optional[float] = None,     # target 2
-    tp3_price: Optional[float] = None,     # target 3
+    volatility: Optional[float] = None,   # N-value (TNV volatility)
+    entry_price: Optional[float] = None,   # Donchian breakout price
+    sl_price: Optional[float] = None,      # SL = entry ∓ 1.5N
+    tp_price: Optional[float] = None,      # TP = entry ± 2.0N (CHỈ 1 TP)
     rsi: Optional[float] = None,
     ema_gap: Optional[float] = None,
     adx: Optional[float] = None,
@@ -93,8 +97,13 @@ def write_pulse(
     Ghi pulse snapshot lên Redis. Bot gọi hàm này mỗi khi có tín hiệu mới
     (mỗi 5 phút từ scheduler_loop).
 
-    Khi bias = NEUTRAL: entry/sl/tp1/tp2/tp3 = None (không có tín hiệu)
-    Khi bias = LONG/SHORT: truyền đủ 5 giá trị entry/sl/tp1/tp2/tp3
+    TNVGold logic:
+      Entry: Donchian 20 nến (e_high/e_low từ tnv_engine)
+      SL:    entry ∓ 1.5 × N (1.5 lần N-value)
+      TP:    entry ± 2.0 × N (2.0 lần N-value, CHỈ 1 TP)
+
+    Khi bias = NEUTRAL: entry/sl/tp = None (không có tín hiệu)
+    Khi bias = LONG/SHORT: truyền đủ 3 giá trị entry/sl/tp
     """
     if price is None or price <= 0:
         log.debug("redis_writer: skip write — price invalid (%s)", price)
@@ -117,11 +126,9 @@ def write_pulse(
             "price": float(entry_price) if entry_price else None,
             "gain": gain if entry_price else None,
         },
-        # EXIT levels — chỉ có khi LONG/SHORT
+        # SL + TP — TNV logic 1.5N/2.0N, chỉ 1 TP duy nhất
         "sl": float(sl_price) if sl_price else None,
-        "tp1": float(tp1_price) if tp1_price else None,
-        "tp2": float(tp2_price) if tp2_price else None,
-        "tp3": float(tp3_price) if tp3_price else None,
+        "tp": float(tp_price) if tp_price else None,
         "htf": bias,
         "multiTf": {
             "m15": {"bias": bias, "score": float(score) if score else 0},

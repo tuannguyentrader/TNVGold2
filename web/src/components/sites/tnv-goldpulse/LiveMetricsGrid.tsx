@@ -142,23 +142,19 @@ export function LiveMetricsGrid() {
         tooltip={t.exitTooltip}
         flipBack={<FlipBackContent label="EXIT" rows={tfPlaceholderRows} />}
       >
-        {pulse.sl != null && pulse.tp1 != null ? (
-          <div className="flex flex-col gap-0.5">
+        {pulse.sl != null && pulse.tp != null ? (
+          <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-              <span className="text-gray-400 font-sans">SL:</span>
+              <span className="text-gray-400 font-sans">SL <span className="text-[0.55rem] text-gray-500">(1.5N)</span>:</span>
               <span className="text-[#ff8383] font-mono font-semibold">${pulse.sl.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-              <span className="text-gray-400 font-sans">TP1:</span>
-              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp1.toFixed(2)}</span>
+              <span className="text-gray-400 font-sans">TP <span className="text-[0.55rem] text-gray-500">(2.0N)</span>:</span>
+              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-              <span className="text-gray-400 font-sans">TP2:</span>
-              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp2?.toFixed(2) ?? "—"}</span>
-            </div>
-            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
-              <span className="text-gray-400 font-sans">TP3:</span>
-              <span className="text-[#61e294] font-mono font-semibold">${pulse.tp3?.toFixed(2) ?? "—"}</span>
+            <div className="flex items-center justify-between text-[0.65rem] leading-tight pt-0.5 border-t border-white/5">
+              <span className="text-gray-500 font-sans">R:R</span>
+              <span className="text-[#f5c542] font-mono font-semibold">1 : 1.33</span>
             </div>
           </div>
         ) : (

@@ -37,17 +37,16 @@ export interface PulseSnapshot {
   price: number;
   bias: "LONG" | "SHORT" | "NEUTRAL";
   score: number;
-  volatility: number;
+  volatility: number;       // N-value (TNV volatility)
   // ENTRY: chỉ có khi bias = LONG/SHORT (null khi NEUTRAL)
   entry: {
-    price: number | null;   // giá breakout từ signal
+    price: number | null;   // Donchian 20 breakout price
     gain: number | null;     // % thay đổi từ entry đến hiện tại
   };
-  // EXIT levels: chỉ có khi bias = LONG/SHORT
+  // SL + TP theo logic TNVGold: SL = entry ∓ 1.5N, TP = entry ± 2.0N
+  // CHỈ 1 TP duy nhất (không có TP1/TP2/TP3)
   sl: number | null;
-  tp1: number | null;
-  tp2: number | null;
-  tp3: number | null;
+  tp: number | null;
   exitSignal?: boolean;
   signalAge?: number;
   htf: string;
@@ -79,9 +78,7 @@ const defaultSnapshot: PulseSnapshot = {
     gain: null,
   },
   sl: null,
-  tp1: null,
-  tp2: null,
-  tp3: null,
+  tp: null,
   exitSignal: false,
   signalAge: 0,
   htf: "—",

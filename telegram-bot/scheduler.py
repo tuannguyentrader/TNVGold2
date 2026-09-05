@@ -522,9 +522,7 @@ def _publish_pulse_to_redis():
         score = 0.0
         entry_price = None
         sl_price = None
-        tp1_price = None
-        tp2_price = None
-        tp3_price = None
+        tp_price = None
 
         for sig in signals_list:
             stype = sig.get("type", "")
@@ -535,9 +533,10 @@ def _publish_pulse_to_redis():
                     entry_price = float(sig["entry_level"])
                 break
 
+        # N-value: volatility thật của TNV (dùng cho SL/TP, giống auto_signals)
         n_val = result.get("n_value") or 0
 
-        # Tính indicators thật từ candles
+        # Tính indicators thật từ candles (cho TechnicalGrid)
         ind = compute_all(candles) if candles else {}
         rsi_val = ind.get("rsi14") or 50.0
         atr_val = ind.get("atr14") or 0.0
@@ -548,30 +547,28 @@ def _publish_pulse_to_redis():
         ema21 = ind.get("ema21") or 0.0
         ema_gap = (ema9 - ema21) if (ema9 and ema21) else 0.0
 
-        # Tính SL/TP từ ATR — chỉ khi có LONG/SHORT
-        atr_use = float(atr_val) if atr_val else 0.0
-        if entry_price and atr_use > 0:
+        # Tính SL/TP theo đúng logic TNVGold:
+        #   SL = entry ∓ 1.5 × N
+        #   TP = entry ± 2.0 × N
+        # Giống scheduler.py auto_signals (line 320-330)
+        n_use = float(n_val) if n_val else 0.0
+        if entry_price and n_use > 0:
             if bias == "LONG":
-                sl_price = round(entry_price - 1.5 * atr_use, 2)
-                tp1_price = round(entry_price + 1.0 * atr_use, 2)
-                tp2_price = round(entry_price + 2.0 * atr_use, 2)
-                tp3_price = round(entry_price + 3.0 * atr_use, 2)
+                sl_price = round(entry_price - 1.5 * n_use, 2)
+                tp_price = round(entry_price + 2.0 * n_use, 2)
             elif bias == "SHORT":
-                sl_price = round(entry_price + 1.5 * atr_use, 2)
-                tp1_price = round(entry_price - 1.0 * atr_use, 2)
-                tp2_price = round(entry_price - 2.0 * atr_use, 2)
-                tp3_price = round(entry_price - 3.0 * atr_use, 2)
+                sl_price = round(entry_price + 1.5 * n_use, 2)
+                tp_price = round(entry_price - 2.0 * n_use, 2)
 
         write_pulse(
             price=float(price),
             bias=bias,
             score=score,
+            # volatility chính là N-value (hiển thị ở VOLATILITY card)
             volatility=float(n_val) if n_val else (float(atr_val) if atr_val else None),
             entry_price=entry_price,
             sl_price=sl_price,
-            tp1_price=tp1_price,
-            tp2_price=tp2_price,
-            tp3_price=tp3_price,
+            tp_price=tp_price,
             rsi=float(rsi_val) if rsi_val else None,
             ema_gap=float(ema_gap),
             adx=adx_val,

@@ -28,7 +28,7 @@ export function AnalysisSummary() {
     // entry price (breakout) hoặc current price nếu NEUTRAL
     const entryRef = pulse.entry.price ?? pulse.price;
     // resistance/support logic
-    const resistance = pulse.tp1 ?? pulse.price;
+    const resistance = pulse.tp ?? pulse.price;
     const support = pulse.sl ?? pulse.price;
     // gain text
     const gainVal = pulse.entry.gain ?? 0;
