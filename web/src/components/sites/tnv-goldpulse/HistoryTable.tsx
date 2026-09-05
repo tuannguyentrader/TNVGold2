@@ -8,7 +8,7 @@ import { useLivePulse } from "@/lib/live-pulse-context";
 const PAGE_SIZE = 10;
 
 export function HistoryTable() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { history } = useLivePulse();
   const [filterBias, setFilterBias] = useState<string>("ALL");
   const [page, setPage] = useState(0);
@@ -65,6 +65,7 @@ export function HistoryTable() {
         </div>
       </div>
 
+      {paged.length > 0 ? (
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#0b0f16] shadow-xl">
         <table className="w-full text-left border-collapse font-sans">
           <thead>
@@ -119,6 +120,21 @@ export function HistoryTable() {
           </tbody>
         </table>
       </div>
+      ) : (
+        <div className="rounded-xl border border-white/10 bg-[#0b0f16] shadow-xl px-6 py-10 flex flex-col items-center justify-center text-center">
+          <div className="w-12 h-12 rounded-full bg-[rgba(245,197,66,0.1)] border border-[rgba(245,197,66,0.25)] flex items-center justify-center mb-3">
+            <History className="w-6 h-6 text-[#f5c542]" />
+          </div>
+          <h3 className="text-sm font-semibold text-white mb-1">
+            {language === "vi" ? "Chưa có dữ liệu lịch sử" : "No history yet"}
+          </h3>
+          <p className="text-[0.74rem] text-gray-400 max-w-sm">
+            {language === "vi"
+              ? "Hệ thống sẽ tự động ghi lại mỗi 5 phút khi bot gửi pulse. Vui lòng đợi hoặc kiểm tra kết nối bot."
+              : "The system will auto-record every 5 minutes when the bot sends a pulse. Please wait or check the bot connection."}
+          </p>
+        </div>
+      )}
 
       {/* Phân trang */}
       {totalPages > 1 && (
