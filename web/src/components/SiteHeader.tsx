@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Zap, LayoutDashboard, BookOpen, Newspaper, Bell, Check, ChevronDown } from "lucide-react";
+import { Zap, LayoutDashboard, BookOpen, Newspaper, Bell, Check, ChevronDown, Menu, X } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 
 /**
@@ -23,6 +23,10 @@ export function SiteHeader() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
 
+  // Mobile menu state
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -37,7 +41,10 @@ export function SiteHeader() {
   // Close on ESC
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowLangMenu(false);
+      if (e.key === "Escape") {
+        setShowLangMenu(false);
+        setShowMobileMenu(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -81,7 +88,7 @@ export function SiteHeader() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f5c542] to-[#cfa744] flex items-center justify-center">
             <Zap className="w-5 h-5 text-[#05060a]" />
           </div>
-          <span className="font-semibold hidden sm:inline">
+          <span className="font-semibold">
             <span className="text-[#f5c542]">TNV</span>{" "}
             <span className="text-white group-hover:text-[#f5c542] transition">Gold</span>
           </span>
@@ -110,6 +117,45 @@ export function SiteHeader() {
             );
           })}
         </nav>
+      </div>
+
+      {/* Mobile menu — chỉ hiện mobile */}
+      <div className="md:hidden relative" ref={mobileMenuRef}>
+        <button
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          className="p-1.5 rounded-md border border-white/10 bg-[#0e131f] text-gray-300 hover:border-white/20 transition-all cursor-pointer"
+          title="Menu"
+          aria-label="Menu"
+        >
+          {showMobileMenu ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        </button>
+
+        {showMobileMenu && (
+          <div className="absolute right-0 top-full mt-1.5 z-50 min-w-[160px] rounded-xl border border-white/10 bg-[#0b0f16] p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              const label = lang === "vi" ? item.labelVi : item.labelEn;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setShowMobileMenu(false)}
+                  className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                    active
+                      ? "bg-[rgba(245,197,66,0.15)] text-[#f5c542] font-bold"
+                      : "text-gray-300 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon className="w-3.5 h-3.5" /> {label}
+                  </span>
+                  {active && <Check className="w-3 h-3 text-[#f5c542]" />}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Right: Language + Bell (đồng bộ với landing) */}
