@@ -150,19 +150,19 @@ export function LiveMetricsGrid() {
             else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
             return (
               <>
-                <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">SL:</span>
                   <span className="text-[#ff8383] font-mono font-semibold">${sl.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP1:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp1.toFixed(2)}</span>
                 </div>
-                <div className="hidden sm:flex items-center justify-between text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP2:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
                 </div>
-                <div className="hidden sm:flex items-center justify-between text-[0.7rem]">
+                <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.7rem] leading-tight">
                   <span className="text-gray-400 font-sans">TP3:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp3.toFixed(2)}</span>
                 </div>
