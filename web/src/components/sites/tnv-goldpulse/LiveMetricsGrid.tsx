@@ -159,6 +159,17 @@ export function LiveMetricsGrid() {
               <span className="text-[#61e294] font-mono font-semibold">${pulse.tp.toFixed(2)}</span>
             </div>
           </div>
+        ) : isNeutral && pulse.rangeLow != null && pulse.rangeHigh != null ? (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">Low:</span>
+              <span className="text-[#ff8383] font-mono font-semibold">${pulse.rangeLow.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-[0.7rem] leading-tight">
+              <span className="text-gray-400 font-sans">High:</span>
+              <span className="text-[#61e294] font-mono font-semibold">${pulse.rangeHigh.toFixed(2)}</span>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm font-mono">
             —
