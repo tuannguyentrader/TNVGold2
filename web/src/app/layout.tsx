@@ -79,6 +79,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
   themeColor: "#05060a",
 };
 
@@ -121,6 +124,7 @@ export default function RootLayout({
       </head>
       <body
         className="min-h-full flex flex-col antialiased bg-[#05060a] text-[#fdfdfd]"
+        style={{ paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}
         suppressHydrationWarning
       >
         <LanguageProvider>
