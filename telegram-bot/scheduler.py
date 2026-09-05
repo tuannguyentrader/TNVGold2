@@ -536,6 +536,9 @@ def _publish_pulse_to_redis():
         ind = compute_all(candles) if candles else {}
         rsi_val = ind.get("rsi14") or 50.0
         atr_val = ind.get("atr14") or 0.0
+        adx_val = ind.get("adx14")
+        vwap_val = ind.get("vwap")
+        spread_val = ind.get("spread")
         ema9 = ind.get("ema9") or 0.0
         ema21 = ind.get("ema21") or 0.0
         ema_gap = (ema9 - ema21) if (ema9 and ema21) else 0.0
@@ -548,6 +551,9 @@ def _publish_pulse_to_redis():
             exit_price=exit_price,
             rsi=float(rsi_val) if rsi_val else None,
             ema_gap=float(ema_gap),
+            adx=adx_val,
+            vwap=vwap_val,
+            spread=spread_val,
         )
     except Exception as e:
         log.warning("publish_pulse_to_redis lỗi: %s", e)

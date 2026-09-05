@@ -79,6 +79,9 @@ def write_pulse(
     exit_price: Optional[float] = None,   # TP target
     rsi: Optional[float] = None,
     ema_gap: Optional[float] = None,
+    adx: Optional[float] = None,
+    vwap: Optional[float] = None,
+    spread: Optional[float] = None,
 ) -> bool:
     """
     Ghi pulse snapshot lên Redis. Bot gọi hàm này mỗi khi có tín hiệu mới
@@ -113,9 +116,9 @@ def write_pulse(
             "rsi": float(rsi) if rsi is not None else 50.0,
             "atr": float(volatility) if volatility is not None else 0.0,
             "emaGap": float(ema_gap) if ema_gap is not None else 0.0,
-            "adx": 0.0,
-            "vwap": 0.0,
-            "spread": 0.0,
+            "adx": float(adx) if adx is not None else 0.0,
+            "vwap": float(vwap) if vwap is not None else 0.0,
+            "spread": float(spread) if spread is not None else 0.0,
         },
     }
 

@@ -109,6 +109,120 @@ def fib_levels(high, low):
     return levels
 
 
+def adx(candles, period: int = 14) -> float | None:
+    """
+    Average Directional Index (ADX) — đo sức mạnh xu hướng (0-100).
+    Không phụ thuộc vào hướng, chỉ đo độ mạnh.
+    ADX >= 25: xu hướng mạnh; ADX < 20: thị trường đi ngang.
+    """
+    if len(candles) < period * 2 + 1:
+        return None
+    highs = [c["high"] for c in candles]
+    lows = [c["low"] for c in candles]
+    closes = [c["close"] for c in candles]
+
+    # True Range
+    trs = []
+    for i in range(1, len(candles)):
+        tr = max(
+            highs[i] - lows[i],
+            abs(highs[i] - closes[i - 1]),
+            abs(lows[i] - closes[i - 1]),
+        )
+        trs.append(tr)
+
+    # +DM, -DM
+    plus_dm = []
+    minus_dm = []
+    for i in range(1, len(candles)):
+        up = highs[i] - highs[i - 1]
+        down = lows[i - 1] - lows[i]
+        if up > down and up > 0:
+            plus_dm.append(up)
+        else:
+            plus_dm.append(0)
+        if down > up and down > 0:
+            minus_dm.append(down)
+        else:
+            minus_dm.append(0)
+
+    # Wilder smoothing (14 periods)
+    def wilder_smooth(values, period):
+        if len(values) < period:
+            return None
+        smoothed = [sum(values[:period])]
+        for v in values[period:]:
+            smoothed.append(smoothed[-1] - smoothed[-1] / period + v)
+        return smoothed
+
+    tr_smooth = wilder_smooth(trs, period)
+    plus_dm_smooth = wilder_smooth(plus_dm, period)
+    minus_dm_smooth = wilder_smooth(minus_dm, period)
+
+    if not tr_smooth or not plus_dm_smooth or not minus_dm_smooth:
+        return None
+
+    # +DI, -DI
+    plus_di = []
+    minus_di = []
+    dx = []
+    for i in range(len(tr_smooth)):
+        if tr_smooth[i] == 0:
+            continue
+        pdi = 100 * plus_dm_smooth[i] / tr_smooth[i]
+        mdi = 100 * minus_dm_smooth[i] / tr_smooth[i]
+        plus_di.append(pdi)
+        minus_di.append(mdi)
+        if (pdi + mdi) == 0:
+            dx.append(0)
+        else:
+            dx.append(100 * abs(pdi - mdi) / (pdi + mdi))
+
+    # ADX = smoothed DX
+    if len(dx) < period:
+        return None
+    adx_smooth = [sum(dx[:period]) / period]
+    for v in dx[period:]:
+        adx_smooth.append((adx_smooth[-1] * (period - 1) + v) / period)
+
+    return adx_smooth[-1] if adx_smooth else None
+
+
+def vwap(candles) -> float | None:
+    """
+    Volume-Weighted Average Price — giá trung bình có trọng số volume.
+    Cần candles có key 'volume'. Trả về None nếu không đủ data.
+    """
+    if not candles:
+        return None
+    total_pv = 0.0
+    total_v = 0.0
+    for c in candles:
+        v = c.get("volume", 0) or 0
+        if v <= 0:
+            continue
+        typical = (c["high"] + c["low"] + c["close"]) / 3
+        total_pv += typical * v
+        total_v += v
+    if total_v == 0:
+        return None
+    return total_pv / total_v
+
+
+def spread_estimate(candles) -> float | None:
+    """
+    Spread ước lượng (pips) = (high - low) trung bình nến gần nhất.
+    Vàng (XAUUSD) 1 pip = 0.01, nhưng user trên web hiển thị 'Pips' generic.
+    Trả về (avg_high_low_diff) * 100 để ra pips (1.0 = 0.01 USD).
+    """
+    if len(candles) < 5:
+        return None
+    recent = candles[-5:]
+    diffs = [c["high"] - c["low"] for c in recent]
+    avg = sum(diffs) / len(diffs)
+    return round(avg * 100, 2)  # pips
+
+
 # ── Tổng hợp tất cả chỉ báo ─────────────────────────────
 def compute_all(candles):
     """Tính toàn bộ chỉ báo từ list nến (đã có open/high/low/close)."""
@@ -126,6 +240,9 @@ def compute_all(candles):
         "ema21": ema(closes, 21),
         "rsi14": rsi(closes, 14),
         "atr14": atr(candles, 14),
+        "adx14": adx(candles, 14),
+        "vwap": vwap(candles),
+        "spread": spread_estimate(candles),
         "macd": macd(closes),
         "boll": bollinger(closes),
         "fib": fib_levels(max(highs[-50:]), min(lows[-50:])),
