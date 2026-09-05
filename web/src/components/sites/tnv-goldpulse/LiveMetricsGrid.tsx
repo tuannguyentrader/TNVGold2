@@ -27,7 +27,7 @@ export function LiveMetricsGrid() {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full min-w-0">
+    <div className="grid grid-cols-2 gap-2 w-full min-w-0">
       {/* 1. BIAS */}
       <MetricCard
         label={t.biasLabel}
