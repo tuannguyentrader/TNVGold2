@@ -47,6 +47,9 @@ export interface PulseSnapshot {
   // CHỈ 1 TP duy nhất (không có TP1/TP2/TP3)
   sl: number | null;
   tp: number | null;
+  // Range Donchian 20 (hiển thị ở EXIT card khi NEUTRAL)
+  rangeLow: number | null;
+  rangeHigh: number | null;
   exitSignal?: boolean;
   signalAge?: number;
   htf: string;
@@ -79,6 +82,8 @@ const defaultSnapshot: PulseSnapshot = {
   },
   sl: null,
   tp: null,
+  rangeLow: null,
+  rangeHigh: null,
   exitSignal: false,
   signalAge: 0,
   htf: "—",
@@ -101,18 +106,30 @@ const defaultSnapshot: PulseSnapshot = {
 let localCache: PulseSnapshot | null = null;
 let localHistoryCache: PulseSnapshot[] | null = null;
 
+// Đảm bảo snapshot đọc từ Redis luôn có đủ field mới (rangeLow/rangeHigh)
+// — data cũ ghi trước khi có field này sẽ được tính fallback từ price ± volatility
+function normalizeSnapshot(raw: PulseSnapshot): PulseSnapshot {
+  const price = raw?.price ?? 0;
+  const vol = raw?.volatility ?? 0;
+  return {
+    ...raw,
+    rangeLow: raw?.rangeLow ?? (price > 0 && vol > 0 ? Number((price - vol).toFixed(2)) : null),
+    rangeHigh: raw?.rangeHigh ?? (price > 0 && vol > 0 ? Number((price + vol).toFixed(2)) : null),
+  };
+}
+
 export async function getLatestPulse(): Promise<PulseSnapshot> {
   try {
-    if (!redis) return localCache || defaultSnapshot;
+    if (!redis) return localCache ? normalizeSnapshot(localCache) : defaultSnapshot;
     const data = await redis.get<PulseSnapshot>(KV_KEY_PULSE);
     if (data) {
       localCache = data;
-      return data;
+      return normalizeSnapshot(data);
     }
   } catch {
     // fallback
   }
-  return localCache || defaultSnapshot;
+  return localCache ? normalizeSnapshot(localCache) : defaultSnapshot;
 }
 
 export async function getPulseHistory(limit: number = 10): Promise<PulseSnapshot[]> {

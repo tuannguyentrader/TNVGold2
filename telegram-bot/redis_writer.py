@@ -93,6 +93,8 @@ def write_pulse(
     vwap: Optional[float] = None,
     spread: Optional[float] = None,
     atr_14: Optional[float] = None,        # ATR 14 (chuẩn, tách riêng)
+    range_low: Optional[float] = None,     # Donchian low 20 (kênh dưới) — dùng khi NEUTRAL
+    range_high: Optional[float] = None,    # Donchian high 20 (kênh trên) — dùng khi NEUTRAL
 ) -> bool:
     """
     Ghi pulse snapshot lên Redis. Bot gọi hàm này mỗi khi có tín hiệu mới

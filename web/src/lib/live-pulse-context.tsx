@@ -21,6 +21,8 @@ const defaultSnapshot: PulseSnapshot = {
   entry: { price: null, gain: null },
   sl: null,
   tp: null,
+  rangeLow: null,
+  rangeHigh: null,
   exitSignal: false,
   signalAge: 0,
   htf: "—",

@@ -560,6 +560,16 @@ def _publish_pulse_to_redis():
                 sl_price = round(entry_price + 1.5 * n_use, 2)
                 tp_price = round(entry_price - 2.0 * n_use, 2)
 
+        # Khi NEUTRAL: ENTRY hiển thị giá hiện tại, EXIT hiển thị range Low-High
+        # (kênh Donchian 20 của S1 — 2 ngưỡng breakout bot đang theo dõi)
+        range_low = None
+        range_high = None
+        if bias == "NEUTRAL":
+            entry_price = float(price)
+            s1 = result.get("systems", {}).get("S1") or {}
+            range_low = s1.get("entry_low")
+            range_high = s1.get("entry_high")
+
         write_pulse(
             price=float(price),
             bias=bias,
@@ -567,6 +577,8 @@ def _publish_pulse_to_redis():
             # volatility = N-value (ATR 20 của TNVGold) — dùng cho SL/TP
             volatility=float(n_val) if n_val else None,
             entry_price=entry_price,
+            range_low=range_low,
+            range_high=range_high,
             sl_price=sl_price,
             tp_price=tp_price,
             rsi=float(rsi_val) if rsi_val else None,

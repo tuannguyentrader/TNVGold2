@@ -116,23 +116,29 @@ export function LiveMetricsGrid() {
       >
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center justify-between text-[0.7rem]">
-            <span className="text-gray-400 font-sans">Price:</span>
+            <span className="text-gray-400 font-sans">
+              {isNeutral ? "Price:" : "Entry:"}
+            </span>
             <span className="text-white font-mono font-bold text-xs sm:text-sm">
-              {pulse.entry.price != null ? `$${pulse.entry.price.toFixed(2)}` : "—"}
+              {isNeutral
+                ? pulse.price > 0 ? `$${pulse.price.toFixed(2)}` : "—"
+                : pulse.entry.price != null ? `$${pulse.entry.price.toFixed(2)}` : "—"}
             </span>
           </div>
-          <div className="flex items-center justify-between text-[0.7rem]">
-            <span className="text-gray-400 font-sans">Gain:</span>
-            <span
-              className={`font-mono font-semibold text-xs sm:text-sm ${
-                pulse.entry.gain != null && pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
-              }`}
-            >
-              {pulse.entry.gain != null
-                ? (pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}%` : `${pulse.entry.gain.toFixed(2)}%`)
-                : "—"}
-            </span>
-          </div>
+          {!isNeutral && (
+            <div className="flex items-center justify-between text-[0.7rem]">
+              <span className="text-gray-400 font-sans">Gain:</span>
+              <span
+                className={`font-mono font-semibold text-xs sm:text-sm ${
+                  pulse.entry.gain != null && pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
+                }`}
+              >
+                {pulse.entry.gain != null
+                  ? (pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}%` : `${pulse.entry.gain.toFixed(2)}%`)
+                  : "—"}
+              </span>
+            </div>
+          )}
         </div>
       </MetricCard>
 
