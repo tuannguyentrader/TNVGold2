@@ -502,6 +502,7 @@ def _publish_pulse_to_redis():
     try:
         from tnv_engine import analyze_tnv
         from redis_writer import write_pulse
+        from indicators import compute_all
 
         candles = get_candles(limit=100)
         if not candles or len(candles) < 22:
@@ -530,12 +531,23 @@ def _publish_pulse_to_redis():
                 break
 
         n_val = result.get("n_value") or 0
+
+        # Tính indicators thật từ candles
+        ind = compute_all(candles) if candles else {}
+        rsi_val = ind.get("rsi14") or 50.0
+        atr_val = ind.get("atr14") or 0.0
+        ema9 = ind.get("ema9") or 0.0
+        ema21 = ind.get("ema21") or 0.0
+        ema_gap = (ema9 - ema21) if (ema9 and ema21) else 0.0
+
         write_pulse(
             price=float(price),
             bias=bias,
             score=score,
-            volatility=float(n_val) if n_val else None,
+            volatility=float(n_val) if n_val else (float(atr_val) if atr_val else None),
             exit_price=exit_price,
+            rsi=float(rsi_val) if rsi_val else None,
+            ema_gap=float(ema_gap),
         )
     except Exception as e:
         log.warning("publish_pulse_to_redis lỗi: %s", e)
