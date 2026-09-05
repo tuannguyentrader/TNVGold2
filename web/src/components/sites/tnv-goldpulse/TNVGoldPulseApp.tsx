@@ -15,7 +15,7 @@ import { ProUpgradeBar } from "./ProUpgradeBar";
 export function TNVGoldPulseApp() {
   return (
     <LivePulseProvider>
-      <main className="max-w-[1260px] mx-auto px-2 sm:px-3 md:px-4 py-3 pb-32 md:pb-44 text-white font-sans">
+      <main className="max-w-[1260px] mx-auto w-full overflow-x-hidden px-2 sm:px-3 md:px-4 py-3 pb-32 md:pb-44 text-white font-sans">
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
         <ProUpgradeBar />
