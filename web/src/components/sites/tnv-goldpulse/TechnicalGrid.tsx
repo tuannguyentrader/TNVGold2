@@ -155,9 +155,6 @@ export function TechnicalGrid() {
         note={spreadNote}
         tooltip={t.spreadTooltip}
       >
-        <div className="text-[0.65rem] text-gray-400 font-mono mt-1">
-          ≈ ${(ind.spread * 0.01).toFixed(2)} USD
-        </div>
       </TechCard>
     </section>
   );
