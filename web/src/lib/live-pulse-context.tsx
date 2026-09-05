@@ -142,6 +142,13 @@ export function LivePulseProvider({
           const newConnected = newPulse.price > 0;
           const newLastUpdated = new Date().toLocaleTimeString("en-GB", { hour12: false });
 
+          // BUG FIX: nếu API trả data rỗng (price=0, thường do Redis hết TTL
+          // giữa 2 lần bot ghi) thì KHÔNG ghi đè state hiện tại — tránh hiện
+          // tượng "data hiện → bị xóa → trống" mỗi 10s.
+          if (newPulse.price <= 0) {
+            return;
+          }
+
           setPulse(newPulse);
           setHistory(newHistory);
           setIsLiveConnected(newConnected);
