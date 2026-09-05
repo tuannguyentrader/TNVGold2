@@ -39,35 +39,97 @@ const LivePulseContext = createContext<LivePulseContextType>({
   lastUpdated: "—",
 });
 
+const CACHE_KEY = "tnv_pulse_cache";
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 phút
+
+interface CachedPulse {
+  pulse: PulseSnapshot;
+  history: PulseSnapshot[];
+  isLiveConnected: boolean;
+  lastUpdated: string;
+  cachedAt: number;  // timestamp
+}
+
+/**
+ * Load cache từ localStorage.
+ * Trả về null nếu không có cache hoặc cache quá cũ (> 5 phút).
+ */
+function loadCache(): CachedPulse | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cache = JSON.parse(raw) as CachedPulse;
+    // Bỏ qua cache quá cũ
+    if (Date.now() - cache.cachedAt > CACHE_TTL_MS) return null;
+    return cache;
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(data: CachedPulse) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage có thể đầy hoặc bị chặn — bỏ qua
+  }
+}
+
 export function LivePulseProvider({ children }: { children: ReactNode }) {
-  const [pulse, setPulse] = useState<PulseSnapshot>(defaultSnapshot);
-  const [history, setHistory] = useState<PulseSnapshot[]>([defaultSnapshot]);
-  const [isLiveConnected, setIsLiveConnected] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("—");
+  // Khởi tạo state từ cache (nếu có) — hiển thị data cũ ngay khi load
+  const [pulse, setPulse] = useState<PulseSnapshot>(() => {
+    const cache = loadCache();
+    return cache?.pulse ?? defaultSnapshot;
+  });
+  const [history, setHistory] = useState<PulseSnapshot[]>(() => {
+    const cache = loadCache();
+    return cache?.history ?? [defaultSnapshot];
+  });
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(() => {
+    const cache = loadCache();
+    return cache?.isLiveConnected ?? false;
+  });
+  const [lastUpdated, setLastUpdated] = useState<string>(() => {
+    const cache = loadCache();
+    return cache?.lastUpdated ?? "—";
+  });
 
   const fetchLivePulse = async () => {
     try {
       const res = await fetch("/api/pulse", { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
-        // Luôn update state khi API trả success — dù price=0 hay >0
-        // Logic cũ: skip khi price=0 → gây stuck "—" vĩnh viễn
         if (json.success && json.data) {
-          setPulse(json.data);
-          if (Array.isArray(json.history) && json.history.length > 0) {
-            setHistory(json.history);
-          }
-          // isLiveConnected: true khi có data thật (price > 0)
-          setIsLiveConnected(json.data.price > 0);
-          setLastUpdated(new Date().toLocaleTimeString("en-GB", { hour12: false }));
+          const newPulse = json.data;
+          const newHistory = Array.isArray(json.history) && json.history.length > 0
+            ? json.history
+            : history;
+          const newConnected = newPulse.price > 0;
+          const newLastUpdated = new Date().toLocaleTimeString("en-GB", { hour12: false });
+
+          setPulse(newPulse);
+          setHistory(newHistory);
+          setIsLiveConnected(newConnected);
+          setLastUpdated(newLastUpdated);
+
+          // Lưu cache để lần load sau hiển thị ngay
+          saveCache({
+            pulse: newPulse,
+            history: newHistory,
+            isLiveConnected: newConnected,
+            lastUpdated: newLastUpdated,
+            cachedAt: Date.now(),
+          });
         }
       }
     } catch {
-      // Fallback — giữ state cũ
+      // Giữ state cũ khi fetch fail
     }
   };
 
-  // Fetch ngay lập tức khi mount, sau đó polling 10 giây
+  // Fetch ngay khi mount, polling 10 giây
   useEffect(() => {
     fetchLivePulse();
     const interval = setInterval(fetchLivePulse, 10000);
