@@ -115,18 +115,18 @@ export async function getLatestPulse(): Promise<PulseSnapshot> {
   return localCache || defaultSnapshot;
 }
 
-export async function getPulseHistory(): Promise<PulseSnapshot[]> {
+export async function getPulseHistory(limit: number = 10): Promise<PulseSnapshot[]> {
   try {
     if (!redis) return localHistoryCache || [];
     const data = await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY);
     if (data && Array.isArray(data)) {
       localHistoryCache = data;
-      return data.slice(0, 10);
+      return data.slice(0, limit);
     }
   } catch {
     // fallback
   }
-  return localHistoryCache?.slice(0, 10) || [];
+  return localHistoryCache?.slice(0, limit) || [];
 }
 
 // Helper chống trùng/idempotency: hai snapshot là cùng một lần ghi nếu cùng thời điểm,

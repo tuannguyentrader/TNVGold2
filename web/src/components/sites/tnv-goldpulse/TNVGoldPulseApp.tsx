@@ -1,6 +1,7 @@
 "use client";
 
 import { LivePulseProvider } from "@/lib/live-pulse-context";
+import type { PulseSnapshot } from "@/lib/pulse-store";
 import { ActionBanner } from "./ActionBanner";
 import { LiveMetricsGrid } from "./LiveMetricsGrid";
 import { AnalysisSummary } from "./AnalysisSummary";
@@ -12,9 +13,14 @@ import { HistoryTable } from "./HistoryTable";
 import { SiteFooter } from "./SiteFooter";
 import { ProUpgradeBar } from "./ProUpgradeBar";
 
-export function TNVGoldPulseApp() {
+interface TNVGoldPulseAppProps {
+  initialPulse: PulseSnapshot;
+  initialHistory: PulseSnapshot[];
+}
+
+export function TNVGoldPulseApp({ initialPulse, initialHistory }: TNVGoldPulseAppProps) {
   return (
-    <LivePulseProvider>
+    <LivePulseProvider initialPulse={initialPulse} initialHistory={initialHistory}>
       <main className="max-w-[1260px] mx-auto w-full overflow-x-hidden px-2 sm:px-3 md:px-4 py-3 pb-32 md:pb-44 text-white font-sans">
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 

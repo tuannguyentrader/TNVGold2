@@ -84,24 +84,48 @@ function saveCache(data: CachedPulse) {
   }
 }
 
-export function LivePulseProvider({ children }: { children: ReactNode }) {
-  // Khởi tạo state từ cache (nếu có) — hiển thị data cũ ngay khi load
-  const [pulse, setPulse] = useState<PulseSnapshot>(() => {
+interface LivePulseProviderProps {
+  children: ReactNode;
+  initialPulse?: PulseSnapshot;    // từ server (SSR)
+  initialHistory?: PulseSnapshot[]; // từ server (SSR)
+}
+
+export function LivePulseProvider({
+  children,
+  initialPulse,
+  initialHistory,
+}: LivePulseProviderProps) {
+  // Thứ tự ưu tiên:
+  //   1. localStorage cache (nếu có data thật, còn TTL)
+  //   2. SSR initial data từ server (nếu có data thật)
+  //   3. defaultSnapshot (rỗng)
+  const getInitialPulse = (): PulseSnapshot => {
     const cache = loadCache();
-    return cache?.pulse ?? defaultSnapshot;
-  });
-  const [history, setHistory] = useState<PulseSnapshot[]>(() => {
+    if (cache?.pulse) return cache.pulse;
+    if (initialPulse && initialPulse.price > 0) return initialPulse;
+    return defaultSnapshot;
+  };
+  const getInitialHistory = (): PulseSnapshot[] => {
     const cache = loadCache();
-    return cache?.history ?? [defaultSnapshot];
-  });
-  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(() => {
+    if (cache?.history) return cache.history;
+    if (initialHistory && initialHistory.length > 0) return initialHistory;
+    return [defaultSnapshot];
+  };
+  const getInitialConnected = (): boolean => {
     const cache = loadCache();
-    return cache?.isLiveConnected ?? false;
-  });
-  const [lastUpdated, setLastUpdated] = useState<string>(() => {
+    if (cache) return cache.isLiveConnected;
+    return getInitialPulse().price > 0;
+  };
+  const getInitialLastUpdated = (): string => {
     const cache = loadCache();
-    return cache?.lastUpdated ?? "—";
-  });
+    if (cache) return cache.lastUpdated;
+    return getInitialPulse().price > 0 ? getInitialPulse().time : "—";
+  };
+
+  const [pulse, setPulse] = useState<PulseSnapshot>(getInitialPulse);
+  const [history, setHistory] = useState<PulseSnapshot[]>(getInitialHistory);
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(getInitialConnected);
+  const [lastUpdated, setLastUpdated] = useState<string>(getInitialLastUpdated);
 
   const fetchLivePulse = async () => {
     try {
