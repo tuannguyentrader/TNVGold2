@@ -63,7 +63,7 @@ export function LiveMetricsGrid() {
           ) : (
             <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
           )}
-          <span>{isLong || isShort ? pulse.bias : "—"}</span>
+          <span>{pulse.bias}</span>
         </div>
       </MetricCard>
 
