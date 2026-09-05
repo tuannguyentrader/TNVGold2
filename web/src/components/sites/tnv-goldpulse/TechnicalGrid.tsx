@@ -41,8 +41,8 @@ export function TechnicalGrid() {
     : ind.rsi >= 30
     ? "Bearish Zone / Vùng giảm"
     : "Oversold / Quá bán";
-  const atrNote = ind.price > 0
-    ? `${((ind.atr / ind.price) * 100).toFixed(2)}% of Price / Giá trị`
+  const atrNote = pulse.price > 0
+    ? `${((ind.atr / pulse.price) * 100).toFixed(2)}% of Price / Giá trị`
     : "—";
   const emaGapNote = ind.emaGap > 0
     ? "Bullish Expansion / Mở rộng tăng"
