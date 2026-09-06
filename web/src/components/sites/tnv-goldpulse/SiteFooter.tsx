@@ -38,9 +38,9 @@ export function SiteFooter() {
     <>
       <footer
         id="footer"
-        className="mt-10 pt-6 border-t border-white/10 text-[0.74rem] text-gray-400 leading-relaxed font-sans"
+        className="mt-6 pt-4 border-t border-white/10 text-[0.74rem] text-gray-400 leading-relaxed font-sans"
       >
-        <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 mb-5">
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/5 mb-3">
           <Shield className="w-4 h-4 text-[#f5c542] shrink-0 mt-0.5" />
           <div className="space-y-1 text-[0.72rem] text-gray-400">
             <p className="text-gray-300 font-semibold m-0">
@@ -55,7 +55,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pb-5 text-[0.72rem] text-gray-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 text-[0.72rem] text-gray-500">
           <div>
             {t.footerRights}
           </div>
