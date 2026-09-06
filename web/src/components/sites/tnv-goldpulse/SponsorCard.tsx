@@ -43,10 +43,18 @@ export function SponsorCard() {
     return () => clearInterval(timer);
   }, []);
 
+  // Click vào card → next broker (giống click dot)
+  const handleCardClick = () => {
+    setActive((i) => (i + 1) % SLIDES.length);
+  };
+
   const slide = SLIDES[active];
 
   return (
-    <div className="rounded-xl p-3.5 bg-[#090d16] border border-[rgba(245,197,66,0.35)] flex flex-col justify-between shadow-xl min-h-[148px] select-none">
+    <div
+      onClick={handleCardClick}
+      className="rounded-xl p-3.5 bg-[#090d16] border border-[rgba(245,197,66,0.35)] flex flex-col justify-between shadow-xl min-h-[148px] cursor-pointer select-none"
+    >
       {/* Slide content (fade transition) */}
       <div key={active} className="animate-in fade-in duration-500">
         <div className="mb-1.5">
@@ -64,6 +72,7 @@ export function SponsorCard() {
           href={slide.url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="inline-block px-4 py-1 rounded-full border border-[#f5c542] text-[#f5c542] text-xs font-semibold hover:bg-[#f5c542] hover:text-[#05060a] transition-all cursor-pointer"
         >
           Open Account
@@ -75,7 +84,10 @@ export function SponsorCard() {
         {SLIDES.map((_, i) => (
           <button
             key={i}
-            onClick={() => setActive(i)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActive(i);
+            }}
             aria-label={`Slide ${i + 1}`}
             className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
               i === active ? "bg-[#f5c542]" : "bg-gray-600 hover:bg-gray-400"
