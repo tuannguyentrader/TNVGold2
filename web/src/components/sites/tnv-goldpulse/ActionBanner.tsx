@@ -19,29 +19,38 @@ export function ActionBanner() {
     ? (pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}%` : `${pulse.entry.gain.toFixed(2)}%`)
     : "—";
 
-  let actionText: string;
+  let actionTextLine1: string;
+  let actionTextLine2: string = "";
   if (!hasData) {
-    actionText = language === "vi"
+    actionTextLine1 = language === "vi"
       ? "Đang chờ dữ liệu từ hệ thống..."
       : "Waiting for data from system...";
   } else if (isNeutral) {
     const rangeLow = (pulse.price - pulse.volatility).toFixed(2);
     const rangeHigh = (pulse.price + pulse.volatility).toFixed(2);
-    actionText =
+    actionTextLine1 =
       language === "vi"
-        ? `XAUUSD TRUNG LẬP • Giá: $${pulse.price.toFixed(2)} • Biên độ: $${rangeLow}–$${rangeHigh}`
-        : `XAUUSD NEUTRAL • Price: $${pulse.price.toFixed(2)} • Range: $${rangeLow}–$${rangeHigh}`;
+        ? `XAUUSD TRUNG LẬP • $${pulse.price.toFixed(2)}`
+        : `XAUUSD NEUTRAL • $${pulse.price.toFixed(2)}`;
+    actionTextLine2 =
+      language === "vi"
+        ? `Biên độ: $${rangeLow}–$${rangeHigh}`
+        : `Range: $${rangeLow}–$${rangeHigh}`;
   } else {
     const entryRef = pulse.entry.price != null ? `$${pulse.entry.price.toFixed(2)}` : "—";
     const slRef = pulse.sl != null ? `$${pulse.sl.toFixed(2)}` : "—";
-    actionText =
+    actionTextLine1 =
       language === "vi"
-        ? `XAUUSD ${pulse.bias} • Giá vào: ${entryRef} • Hiện tại: $${pulse.price.toFixed(2)} (${gainStr}) • Dừng lỗ: ${slRef}`
-        : `XAUUSD ${pulse.bias} • Entry: ${entryRef} • Now: $${pulse.price.toFixed(2)} (${gainStr}) • Stop: ${slRef}`;
+        ? `XAUUSD ${pulse.bias} • $${pulse.price.toFixed(2)} (${gainStr})`
+        : `XAUUSD ${pulse.bias} • $${pulse.price.toFixed(2)} (${gainStr})`;
+    actionTextLine2 =
+      language === "vi"
+        ? `Vào: ${entryRef} • Dừng lỗ: ${slRef}`
+        : `Entry: ${entryRef} • Stop: ${slRef}`;
   }
 
   const handleShare = async () => {
-    const shareText = `TNV SIGNAL | ${actionText}`;
+    const shareText = `TNV SIGNAL | ${actionTextLine1}${actionTextLine2 ? " | " + actionTextLine2 : ""}`;
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(shareText);
@@ -64,7 +73,7 @@ export function ActionBanner() {
       }`}
     >
       {/* Left: Signal Badge + Alert message */}
-      <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
+      <div className="flex items-start sm:items-center gap-2.5 overflow-hidden flex-1 min-w-0">
         <span
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-[0.68rem] border shrink-0 ${
             isLong
@@ -77,8 +86,15 @@ export function ActionBanner() {
           <Zap className="w-3 h-3 fill-current" />
           TNV SIGNAL
         </span>
-        <div className="truncate text-gray-200 font-medium font-mono text-[0.74rem]">
-          {actionText}
+        {/* Text: 2 dòng trên mobile, 1 dòng (cách nhau bằng •) trên tablet+ */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5 text-gray-200 font-medium font-mono text-[0.74rem] min-w-0 flex-1">
+          <span className="truncate">{actionTextLine1}</span>
+          {actionTextLine2 && (
+            <>
+              <span className="hidden sm:inline text-gray-500">•</span>
+              <span className="truncate text-gray-400">{actionTextLine2}</span>
+            </>
+          )}
         </div>
       </div>
 
