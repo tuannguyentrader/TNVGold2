@@ -46,10 +46,14 @@ export function TNVGoldPulseApp({ initialPulse, initialHistory }: TNVGoldPulseAp
             </div>
           </div>
 
-          {/* Right Expanded Box: News + Live Gold Price Chart — chỉ hiện md+ */}
-          <div className="hidden lg:flex flex-col gap-3 h-full justify-between">
+          {/* Right Expanded Box: News + Live Gold Price Chart */}
+          {/* SponsorCard: hiện mọi thiết bị */}
+          {/* LiveGoldPriceChart: chỉ hiện desktop lg+ (chart to) */}
+          <div className="flex flex-col gap-3 h-full justify-between">
             <SponsorCard />
-            <LiveGoldPriceChart />
+            <div className="hidden lg:block">
+              <LiveGoldPriceChart />
+            </div>
           </div>
         </div>
 
