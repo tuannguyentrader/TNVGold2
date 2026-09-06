@@ -1,12 +1,12 @@
 // Cron — fetch tin tức từ ForexFactory mỗi 30 phút
-// Dùng URL giống Telegram bot: https://nfs.faireconomy.media/ff_calendar_thisweek.xml
-// Fallback: rss2json proxy nếu XML trực tiếp fail
+// Ưu tiên: JSON feed (direct) → XML feed → rss2json → sample
 import { NextResponse } from "next/server";
 import { addNews, clearOldNews } from "@/lib/news-store";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+const FF_JSON = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 const FF_XML = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml";
 const FF_RSS_OLD = "https://www.forexfactory.com/ffcal_week_this.xml";
 const RSS2JSON_API = "https://api.rss2json.com/v1/api.json";
@@ -18,6 +18,29 @@ interface NewsItem {
   source: string;
   impact?: string;
   currency?: string;
+}
+
+// Fetch JSON feed từ faireconomy.media — array trực tiếp (giống /api/news)
+async function fetchViaJson(): Promise<NewsItem[] | null> {
+  try {
+    const res = await fetch(FF_JSON, {
+      next: { revalidate: 0 },
+      headers: { "User-Agent": "TNVGold-Web/1.0" },
+    });
+    if (!res.ok) return null;
+    const events = await res.json();
+    if (!Array.isArray(events) || events.length === 0) return null;
+    return events.map((e: any) => ({
+      title: e.title || "",
+      time: e.date || new Date().toISOString(),
+      url: "https://www.forexfactory.com/calendar",
+      source: "ForexFactory",
+      currency: e.country || "",
+      impact: e.impact || "",
+    }));
+  } catch {
+    return null;
+  }
 }
 
 // Parse XML từ faireconomy.media — format: <weeklyevents>...</weeklyevents>
@@ -129,11 +152,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Thử XML trực tiếp trước (giống bot)
-    let items = await fetchViaXml();
-    let source = "xml";
+    // 1. Thử JSON feed trực tiếp (ưu tiên cao nhất)
+    let items = await fetchViaJson();
+    let source = "json";
 
-    // Fallback: rss2json
+    // 2. Fallback: XML
+    if (!items || items.length === 0) {
+      items = await fetchViaXml();
+      source = "xml";
+    }
+
+    // 3. Fallback: rss2json
     if (!items || items.length === 0) {
       try {
         items = await fetchViaRss2Json();
@@ -143,7 +172,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // Fallback cuối cùng: sample (để cron không bao giờ fail)
+    // 4. Fallback cuối cùng: sample (để cron không bao giờ fail)
     if (!items || items.length === 0) {
       items = getSampleNews();
       source = "sample";
