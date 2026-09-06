@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1.0 },
     { url: `${SITE_URL}/goldpulse`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE_URL}/blog`, lastModified: now, changeFrequency: "hourly", priority: 0.8 },
-    { url: `${SITE_URL}/tin-tuc`, lastModified: now, changeFrequency: "hourly", priority: 0.8 },
+    { url: `${SITE_URL}/news`, lastModified: now, changeFrequency: "hourly", priority: 0.8 },
   ];
 
   // Blog posts (dynamic)
@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const news = await listNews({ limit: 100 });
     newsPages = news.map((n) => ({
-      url: `${SITE_URL}/tin-tuc/${n.id}`,
+      url: `${SITE_URL}/news/${n.id}`,
       lastModified: new Date(n.fetchedAt),
       changeFrequency: "daily" as const,
       priority: 0.6,

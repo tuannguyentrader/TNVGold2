@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Lịch kinh tế USD, tin tức quan trọng ảnh hưởng đến giá vàng XAUUSD. Cập nhật tự động từ ForexFactory.",
   alternates: {
-    canonical: "/tin-tuc",
+    canonical: "/news",
   },
 };
 

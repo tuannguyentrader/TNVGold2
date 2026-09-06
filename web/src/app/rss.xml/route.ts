@@ -38,7 +38,7 @@ export async function GET() {
 
   // News
   for (const n of news) {
-    const link = `${SITE_URL}/tin-tuc/${n.id}`;
+    const link = `${SITE_URL}/news/${n.id}`;
     items.push(`
     <item>
       <title>${escapeXml(n.title)}</title>

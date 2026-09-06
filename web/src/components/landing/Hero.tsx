@@ -48,7 +48,7 @@ export function Hero({ lang }: { lang: Lang }) {
             {t.heroBlogBtn}
           </Link>
           <Link
-            href="/tin-tuc"
+            href="/news"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-[#f5c542] hover:bg-white/5 transition"
           >
             <Newspaper className="w-4 h-4" />

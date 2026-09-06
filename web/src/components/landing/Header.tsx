@@ -37,7 +37,7 @@ export function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
   const navItems = [
     { href: "/goldpulse", label: t.navDashboard, icon: LayoutDashboard },
     { href: "/blog", label: t.navBlog, icon: BookOpen },
-    { href: "/tin-tuc", label: t.navNews, icon: Newspaper },
+    { href: "/news", label: t.navNews, icon: Newspaper },
   ];
 
   const isActive = (href: string) => pathname === href || pathname?.startsWith(href + "/");

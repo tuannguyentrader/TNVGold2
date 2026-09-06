@@ -26,7 +26,7 @@ export async function generateMetadata({
       publishedTime: new Date(item.time).toISOString(),
     },
     alternates: {
-      canonical: `/tin-tuc/${id}`,
+      canonical: `/news/${id}`,
     },
   };
 }
@@ -54,7 +54,7 @@ export default async function NewsDetailPage({
     <main className="min-h-screen px-6 py-12">
       <article className="max-w-3xl mx-auto">
         <Link
-          href="/tin-tuc"
+          href="/news"
           className="text-sm text-[#f5c542] hover:underline mb-6 inline-flex items-center gap-1"
         >
           <ArrowLeft className="w-3 h-3" />
@@ -110,7 +110,7 @@ export default async function NewsDetailPage({
         </div>
 
         <footer className="mt-12 pt-6 border-t border-white/5 text-sm text-gray-500">
-          <Link href="/tin-tuc" className="text-[#f5c542] hover:underline">
+          <Link href="/news" className="text-[#f5c542] hover:underline">
             ← Quay lại danh sách
           </Link>
         </footer>

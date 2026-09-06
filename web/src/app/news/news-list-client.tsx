@@ -129,7 +129,7 @@ export function NewsListClient() {
               return (
                 <Link
                   key={n.id}
-                  href={`/tin-tuc/${n.id}`}
+                  href={`/news/${n.id}`}
                   className="block p-4 rounded-xl bg-[#0b0f16] border border-white/5 hover:border-[#f5c542]/30 transition"
                 >
                   <div className="flex items-start gap-4">

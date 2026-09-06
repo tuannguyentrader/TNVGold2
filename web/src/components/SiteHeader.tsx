@@ -67,7 +67,7 @@ export function SiteHeader() {
       icon: BookOpen,
     },
     {
-      href: "/tin-tuc",
+      href: "/news",
       labelVi: lang === "vi" ? "Tin tức" : "News",
       labelEn: "News",
       icon: Newspaper,

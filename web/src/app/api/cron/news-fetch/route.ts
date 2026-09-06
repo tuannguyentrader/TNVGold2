@@ -106,7 +106,7 @@ function getSampleNews(): NewsItem[] {
     {
       title: "🔔 Placeholder: Cập nhật tin tức đang được đồng bộ",
       time: now.toISOString(),
-      url: "https://tnvgold.vercel.app/tin-tuc",
+      url: "https://tnvgold.vercel.app/news",
       source: "TNVGold",
     },
   ];
