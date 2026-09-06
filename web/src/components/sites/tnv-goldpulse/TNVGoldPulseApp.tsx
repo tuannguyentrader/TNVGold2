@@ -21,7 +21,7 @@ interface TNVGoldPulseAppProps {
 export function TNVGoldPulseApp({ initialPulse, initialHistory }: TNVGoldPulseAppProps) {
   return (
     <LivePulseProvider initialPulse={initialPulse} initialHistory={initialHistory}>
-      <main className="max-w-[1260px] mx-auto w-full overflow-x-hidden px-2 sm:px-3 md:px-4 py-3 pb-14 sm:pb-16 text-white font-sans">
+      <main className="max-w-[1260px] mx-auto w-full overflow-x-hidden px-2 sm:px-3 md:px-4 py-3 pb-14 text-white font-sans">
         {/* Header dùng SiteHeader global từ layout.tsx (Logo + Nav + Lang + Bell) */}
 
         <ProUpgradeBar />
