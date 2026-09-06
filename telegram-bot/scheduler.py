@@ -503,8 +503,14 @@ def _publish_pulse_to_redis():
         from tnv_engine import analyze_tnv
         from redis_writer import write_pulse
         from indicators import compute_all
+        from mt5_connector import get_rates
 
-        candles = get_candles(limit=100)
+        # Lấy candles trực tiếp từ MT5 (realtime, không qua Gold-API collector)
+        # Fallback: nếu MT5 không khả dụng thì dùng SQLite
+        candles = get_rates(symbol="XAUUSD", timeframe="M5", count=100)
+        if not candles or len(candles) < 22:
+            log.debug("publish_pulse_to_redis: MT5 không trả candles, fallback SQLite")
+            candles = get_candles(limit=100)
         if not candles or len(candles) < 22:
             return
 
