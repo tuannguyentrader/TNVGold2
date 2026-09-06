@@ -20,13 +20,13 @@ const SLIDES: BrokerSlide[] = [
     brand: "IC Markets",
     title: "Raw ECN Spreads from 0.0 pips",
     desc: "Deep liquidity and lightning execution for serious XAUUSD traders.",
-    url: "https://www.icmarkets.com/?camp=49318",
+    url: "https://one.exnessonelink.com/a/aml5fdpb?source=app",
   },
   {
     brand: "Pepperstone",
     title: "Award-Winning Razor Pricing",
     desc: "Tight spreads and reliable uptime for algorithmic gold strategies.",
-    url: "https://pepperstone.com/?affid=14518",
+    url: "https://one.exnessonelink.com/a/aml5fdpb?source=app",
   },
 ];
 
