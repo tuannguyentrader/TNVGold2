@@ -23,7 +23,7 @@ except ImportError:
     pass
 
 import config
-from storage import get_candles, save_report, kv_get, kv_set, get_tier, check_quota, incr_usage
+from storage import get_candles, save_report, kv_get, kv_set, kv_keys, get_tier, check_quota, incr_usage
 from candle_analysis import analyze_candle_sequence, format_sequence_report
 from indicators import compute_all, format_indicators
 
