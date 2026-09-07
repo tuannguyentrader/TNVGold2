@@ -38,3 +38,7 @@ logs/
 .vscode/
 .idea/
 *.swp
+
+# Build/artifact tools not for public repo
+web/bfg.jar
+web/.deploy-trigger
