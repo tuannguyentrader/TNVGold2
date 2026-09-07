@@ -175,8 +175,9 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
 
   try {
     if (redis) {
-      // Save current pulse (TTL 60s — tránh stale data nếu EA ngừng gửi)
-      await redis.set(KV_KEY_PULSE, snapshot, { ex: 60 });
+      // Save current pulse (TTL 600s = 10 phút — đồng bộ với redis_writer.py
+      // để web luôn thấy data kể cả khi bot bị lag 1-2 cycle)
+      await redis.set(KV_KEY_PULSE, snapshot, { ex: 600 });
 
       // Update history (idempotent: không ghi snapshot trùng với bản mới nhất)
       const history = (await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];

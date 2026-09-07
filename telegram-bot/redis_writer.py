@@ -48,7 +48,7 @@ UPSTASH_TOKEN = os.environ.get("KV_REST_API_TOKEN", "")
 
 # Key & TTL — phải khớp với web/src/lib/pulse-store.ts
 REDIS_KEY = "tnv:current_pulse"
-REDIS_TTL_SECONDS = 60  # giống web đặt
+REDIS_TTL_SECONDS = 600  # 10 phút — đủ để web luôn thấy data kể cả khi bot bị lag 1-2 cycle
 
 
 def _redis_set(key: str, value: dict, ttl: int = REDIS_TTL_SECONDS) -> bool:
