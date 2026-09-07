@@ -79,11 +79,36 @@ def set_active_chats(chat_ids):
 
 
 def add_active_chat(chat_id: int):
-    """Thêm một chat vào danh sách nhận tin tự động (nếu chưa có)."""
+    """Thêm một chat vào danh sách nhận tin tự động (nếu chưa có).
+    Lưu vào SQLite để qua restart vẫn giữ được."""
     global _active_chat_ids
     if chat_id not in _active_chat_ids:
         _active_chat_ids.append(chat_id)
         log.info("➕ Đã đăng ký chat %s nhận tin tự động", chat_id)
+    # Persist vào DB (idempotent)
+    try:
+        kv_set(f"chat:active:{chat_id}", 1)
+    except Exception as e:
+        log.warning("Lưu chat:active:%s lỗi: %s", chat_id, e)
+
+
+def load_active_chats_from_db():
+    """Đọc lại danh sách active chats từ SQLite (gọi lúc bot khởi động).
+    Merge với list hiện tại (XAU_CHAT_IDS từ env)."""
+    global _active_chat_ids
+    try:
+        keys = kv_keys("chat:active:")
+        for key in keys:
+            try:
+                cid = int(key.split("chat:active:")[-1])
+                if cid not in _active_chat_ids:
+                    _active_chat_ids.append(cid)
+                    log.info("♻️  Khôi phục chat %s từ DB", cid)
+            except (ValueError, IndexError):
+                continue
+        log.info("Đã load %d active chat(s) từ DB", len(_active_chat_ids))
+    except Exception as e:
+        log.warning("Load active chats từ DB lỗi: %s", e)
 
 
 def _send_all(text: str):

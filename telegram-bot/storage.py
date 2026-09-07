@@ -150,6 +150,18 @@ def kv_delete(key: str):
         c.execute("DELETE FROM kv WHERE key=?", (key,))
 
 
+def kv_keys(prefix: str = "") -> list:
+    """Liệt kê tất cả keys trong kv, có thể filter theo prefix.
+    Dùng để load lại active chats qua restart."""
+    with db() as c:
+        c.execute("CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT)")
+        if prefix:
+            r = c.execute("SELECT key FROM kv WHERE key LIKE ?", (prefix + "%",)).fetchall()
+        else:
+            r = c.execute("SELECT key FROM kv").fetchall()
+    return [row["key"] for row in r]
+
+
 # ── API Keys (lưu SQLite) ────────────────────────────────
 def set_api_key(provider: str, key: str):
     """Lưu API key cho provider vào SQLite."""

@@ -178,7 +178,7 @@ def main():
 
     # Import bot + scheduler (cần sau khi có collector)
     import bot
-    from scheduler import scheduler_loop, set_send_callback, set_active_chats
+    from scheduler import scheduler_loop, set_send_callback, set_active_chats, load_active_chats_from_db
 
     # Active chats từ env (chấp nhận cả chat_id âm: group/channel Telegram)
     active_chats = []
@@ -191,6 +191,8 @@ def main():
         except ValueError:
             log.warning("Bỏ qua XAU_CHAT_IDS không hợp lệ: %r", x)
     set_active_chats(active_chats)
+    # Khôi phục từ DB (các chat đã /start trước đó, không bị mất khi restart)
+    load_active_chats_from_db()
 
     # Chạy bot trong thread (run_polling blocking)
     bot_thread = threading.Thread(target=bot.run_bot, args=(stop_event,), daemon=True)
