@@ -316,6 +316,12 @@ def check_auto_signals(enabled_chats=None):
             return
 
         price = result.get("current_price")
+        # Guard: analyze_tnv có thể trả current_price=None/0 mà không có key
+        # 'error' — nếu không chặn, f"${price:.2f}" gây TypeError và except tổng
+        # nuốt cả chu kỳ signal (mất tín hiệu im lặng).
+        if not price or price <= 0:
+            log.debug("Auto signal bỏ qua: current_price không hợp lệ")
+            return
         now = datetime.now(VN_TZ)
         now_ts = time.time()
         day_key = now.strftime("%Y-%m-%d")

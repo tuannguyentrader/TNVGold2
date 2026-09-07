@@ -53,8 +53,15 @@ CREATE INDEX IF NOT EXISTS idx_redeem_codes_used ON redeem_codes(used_by);
 
 @contextmanager
 def db():
-    conn = sqlite3.connect(DB_PATH)
+    # WAL + timeout 30s: 3 thread (collector/scheduler/bot handlers) ghi đồng thời
+    # — không có WAL sẽ gặp 'database is locked' và quota check fail-open.
+    conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+    except sqlite3.OperationalError:
+        pass  # WAL không khả dụng (vd filesystem mạng) — vẫn chạy rollback journal
     try:
         yield conn
         conn.commit()

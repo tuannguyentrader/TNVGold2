@@ -1301,6 +1301,10 @@ async def cmd_reset(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def on_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     """Xử lý mọi nút inline keyboard."""
+    # Allowlist: mọi command đều qua check_allowed — button cũng phải vậy,
+    # tránh bot bị add vào group lạ vẫn serve dữ liệu qua inline button.
+    if not check_allowed(update):
+        return
     query = update.callback_query
     try:
         await query.answer()
