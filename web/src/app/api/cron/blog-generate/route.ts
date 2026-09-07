@@ -29,6 +29,17 @@ export async function GET(request: Request) {
 
   try {
     const pulse = await getLatestPulse();
+
+    // Gate: không có pulse tươi (Redis hết TTL) thì KHÔNG đăng bài — tránh
+    // tự đăng bài rác "Giá $0.00, NEUTRAL" lên blog công khai (TTL 90 ngày).
+    if (!pulse || pulse.price <= 0) {
+      return NextResponse.json({
+        success: true,
+        skipped: "no-fresh-pulse",
+        message: "Pulse trống hoặc hết hạn — bỏ qua lần này, đợi bot ghi lại",
+      });
+    }
+
     const now = new Date();
     const slug = `xau-pulse-${now.toISOString().slice(0, 13).replace(/[-:T]/g, "")}`; // YYYYMMDDHH
 

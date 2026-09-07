@@ -82,9 +82,20 @@ export async function listNews(options?: { limit?: number; currency?: string }):
   return items.slice(0, limit);
 }
 
-export async function addNews(input: { title: string; time: string; url: string; source?: string }): Promise<NewsItem | null> {
+export async function addNews(input: {
+  title: string;
+  time: string;
+  url: string;
+  source?: string;
+  impact?: string;      // từ feed ForexFactory ("High"/"Medium"/"Low"/"Holiday")
+  currency?: string;    // từ feed (USD, EUR...)
+}): Promise<NewsItem | null> {
   if (!input.title || !input.time) return null;
 
+  // Ưu tiên impact/currency từ feed; chỉ đoán từ title khi thiếu (rss2json fallback).
+  // (Trước đây mọi tin bị đoán thành 'low'/'OTHER' → filter /news vô dụng)
+  const impactRaw = (input.impact || "").toLowerCase();
+  const validImpact = ["high", "medium", "low"].includes(impactRaw) ? impactRaw : null;
   const id = makeId(input.title, input.time);
   const item: NewsItem = {
     id,
@@ -92,8 +103,8 @@ export async function addNews(input: { title: string; time: string; url: string;
     time: input.time,
     url: input.url || "",
     source: input.source || "ForexFactory",
-    impact: detectImpact(input.title),
-    currency: detectCurrency(input.title),
+    impact: (validImpact || detectImpact(input.title)) as NewsItem["impact"],
+    currency: input.currency || detectCurrency(input.title),
     fetchedAt: Date.now(),
   };
 

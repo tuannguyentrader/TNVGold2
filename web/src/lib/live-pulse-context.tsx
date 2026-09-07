@@ -136,28 +136,33 @@ export function LivePulseProvider({
         const json = await res.json();
         if (json.success && json.data) {
           const newPulse = json.data;
-          const newHistory = Array.isArray(json.history) && json.history.length > 0
-            ? json.history
-            : history;
           const newConnected = newPulse.price > 0;
           const newLastUpdated = new Date().toLocaleTimeString("en-GB", { hour12: false });
 
-          // BUG FIX: nếu API trả data rỗng (price=0, thường do Redis hết TTL
-          // giữa 2 lần bot ghi) thì KHÔNG ghi đè state hiện tại — tránh hiện
-          // tượng "data hiện → bị xóa → trống" mỗi 10s.
+          // Redis hết TTL (price=0, giữa 2 lần bot ghi): KHÔNG ghi đè pulse/history
+          // (tránh "data hiện → bị xóa → trống" mỗi 10s) NHƯNG phải hạ cờ LIVE —
+          // bot đang không ghi, badge "Live" là sai lệch với sản phẩm tín hiệu.
           if (newPulse.price <= 0) {
+            setIsLiveConnected(false);
             return;
           }
 
+          // Functional updates: tránh stale closure (fetchLivePulse giữ reference
+          // của render đầu trong useEffect([])) — merge với state mới nhất.
           setPulse(newPulse);
-          setHistory(newHistory);
+          setHistory((prev) =>
+            Array.isArray(json.history) && json.history.length > 0 ? json.history : prev
+          );
           setIsLiveConnected(newConnected);
           setLastUpdated(newLastUpdated);
 
           // Lưu cache để lần load sau hiển thị ngay
           saveCache({
             pulse: newPulse,
-            history: newHistory,
+            history:
+              Array.isArray(json.history) && json.history.length > 0
+                ? json.history
+                : history, // saveCache dùng cho lần mở sau — giá trị này OK
             isLiveConnected: newConnected,
             lastUpdated: newLastUpdated,
             cachedAt: Date.now(),
@@ -165,7 +170,8 @@ export function LivePulseProvider({
         }
       }
     } catch {
-      // Giữ state cũ khi fetch fail
+      // Fetch fail (mạng/API lỗi) — hạ cờ LIVE vì không xác nhận được data mới
+      setIsLiveConnected(false);
     }
   };
 

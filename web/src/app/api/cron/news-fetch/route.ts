@@ -117,24 +117,6 @@ async function fetchViaRss2Json(): Promise<NewsItem[]> {
   }));
 }
 
-// Sample news — fallback cuối cùng, luôn có data
-// Tạo placeholder nếu cả ForexFactory + TradingView fail
-function getSampleNews(): NewsItem[] {
-  const now = new Date();
-  const future1 = new Date(now.getTime() + 60 * 60 * 1000); // +1h
-  const future2 = new Date(now.getTime() + 2 * 60 * 60 * 1000); // +2h
-  const future3 = new Date(now.getTime() + 4 * 60 * 60 * 1000); // +4h
-
-  return [
-    {
-      title: "🔔 Placeholder: Cập nhật tin tức đang được đồng bộ",
-      time: now.toISOString(),
-      url: "https://tnvgold.vercel.app/news",
-      source: "TNVGold",
-    },
-  ];
-}
-
 export async function GET(request: Request) {
   // Auth — CHỈ chấp nhận Bearer TNV_SECRET_KEY.
   // (Đã bỏ nhánh x-vercel-cron: header đó client nào cũng gửi được → auth bypass.
@@ -173,20 +155,30 @@ export async function GET(request: Request) {
       }
     }
 
-    // 4. Fallback cuối cùng: sample (để cron không bao giờ fail)
+    // 4. Hết feed thật → KHÔNG lưu placeholder giả nữa. Trả added:0 để
+    // cron-job.org retry lần sau; tin giả source ForexFactorFactory làm mất uy tín.
     if (!items || items.length === 0) {
-      items = getSampleNews();
-      source = "sample";
+      return NextResponse.json({
+        success: true,
+        message: "No news fetched this cycle (all feeds failed) — will retry",
+        added: 0,
+        total: 0,
+        source: "none",
+      });
     }
 
     let added = 0;
     for (const item of items.slice(0, 20)) {
       if (!item.title) continue;
+      // Truyền impact/currency từ feed (FF JSON trả sẵn) — không để store
+      // tự đoán từ title (gây mọi tin thành 'low'/'OTHER', hỏng filter)
       const result = await addNews({
         title: item.title,
         time: item.time,
         url: item.url || "",
         source: "ForexFactory",
+        impact: item.impact,
+        currency: item.currency,
       });
       if (result) added++;
     }
