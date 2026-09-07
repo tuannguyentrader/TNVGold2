@@ -12,8 +12,9 @@ export async function GET(request: Request) {
     const posts = await listPosts({ limit, type });
     return NextResponse.json({ success: true, data: posts, count: posts.length });
   } catch (err) {
+    console.error("[posts] error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to list posts", detail: String(err) },
+      { success: false, error: "Failed to list posts" },
       { status: 500 }
     );
   }
@@ -62,8 +63,9 @@ export async function POST(request: Request) {
     await createPost(post);
     return NextResponse.json({ success: true, data: { slug: post.slug } });
   } catch (err) {
+    console.error("[posts] error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to create post", detail: String(err) },
+      { success: false, error: "Failed to create post" },
       { status: 500 }
     );
   }

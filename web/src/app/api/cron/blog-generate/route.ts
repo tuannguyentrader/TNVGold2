@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60; // giây
 
 export async function GET(request: Request) {
-  // Auth — kiểm tra Bearer hoặc Vercel Cron header
+  // Auth — CHỈ chấp nhận Bearer TNV_SECRET_KEY.
+  // (Đã bỏ nhánh x-vercel-cron: header đó client nào cũng gửi được → auth bypass)
   const expected = process.env.TNV_SECRET_KEY;
   const authHeader = request.headers.get("authorization");
-  const cronHeader = request.headers.get("x-vercel-cron");
 
   if (!expected) {
     return NextResponse.json(
@@ -20,8 +20,7 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-  // Allow Vercel Cron (no auth) hoặc Bearer token
-  if (!cronHeader && authHeader !== `Bearer ${expected}`) {
+  if (authHeader !== `Bearer ${expected}`) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
       { status: 401 }
@@ -108,8 +107,9 @@ export async function GET(request: Request) {
       title: post.title.vi,
     });
   } catch (err) {
+    console.error("[blog-generate] error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to create post", detail: String(err) },
+      { success: false, error: "Failed to create post" },
       { status: 500 }
     );
   }

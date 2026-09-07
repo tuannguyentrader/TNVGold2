@@ -136,10 +136,11 @@ function getSampleNews(): NewsItem[] {
 }
 
 export async function GET(request: Request) {
-  // Auth — Vercel Cron header hoặc Bearer
+  // Auth — CHỈ chấp nhận Bearer TNV_SECRET_KEY.
+  // (Đã bỏ nhánh x-vercel-cron: header đó client nào cũng gửi được → auth bypass.
+  //  cron-job.org đã cấu hình gửi Authorization Bearer.)
   const expected = process.env.TNV_SECRET_KEY;
   const authHeader = request.headers.get("authorization");
-  const cronHeader = request.headers.get("x-vercel-cron");
 
   if (!expected) {
     return NextResponse.json(
@@ -147,7 +148,7 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-  if (!cronHeader && authHeader !== `Bearer ${expected}`) {
+  if (authHeader !== `Bearer ${expected}`) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -201,8 +202,9 @@ export async function GET(request: Request) {
       source,
     });
   } catch (err) {
+    console.error("[news-fetch] error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch news", detail: String(err) },
+      { success: false, error: "Failed to fetch news" },
       { status: 500 }
     );
   }
