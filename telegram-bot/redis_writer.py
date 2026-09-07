@@ -48,10 +48,13 @@ UPSTASH_TOKEN = os.environ.get("KV_REST_API_TOKEN", "")
 
 # Key & TTL — phải khớp với web/src/lib/pulse-store.ts
 REDIS_KEY = "tnv:current_pulse"
+REDIS_KEY_HISTORY = "tnv:pulse_history"
 REDIS_TTL_SECONDS = 600  # 10 phút — đủ để web luôn thấy data kể cả khi bot bị lag 1-2 cycle
+REDIS_HISTORY_TTL_SECONDS = 7 * 24 * 3600  # history giữ 7 ngày
+REDIS_HISTORY_MAX = 15  # web cũng giữ 15 bản (giống pulse-store.ts)
 
 
-def _redis_set(key: str, value: dict, ttl: int = REDIS_TTL_SECONDS) -> bool:
+def _redis_set(key: str, value, ttl: int = REDIS_TTL_SECONDS) -> bool:
     """Ghi 1 key vào Upstash Redis qua REST API."""
     if not UPSTASH_URL or not UPSTASH_TOKEN:
         log.warning("redis_writer: missing KV_REST_API_URL or KV_REST_API_TOKEN")
@@ -77,6 +80,52 @@ def _redis_set(key: str, value: dict, ttl: int = REDIS_TTL_SECONDS) -> bool:
     except Exception as e:
         log.warning("redis_writer: set exception: %s", e)
         return False
+
+
+def _redis_get(key: str):
+    """Đọc 1 key từ Upstash Redis. Trả None nếu không có / lỗi."""
+    if not UPSTASH_URL or not UPSTASH_TOKEN:
+        return None
+    try:
+        r = requests.get(
+            f"{UPSTASH_URL}/get/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            return None
+        result = r.json().get("result")
+        if result is None:
+            return None
+        return json.loads(result) if isinstance(result, str) else result
+    except Exception as e:
+        log.warning("redis_writer: get exception: %s", e)
+        return None
+
+
+def _update_history(snapshot: dict):
+    """Ghi snapshot vào history (unshift + dedupe + giới hạn 15 bản).
+    Dedupe: cùng time + price + bias + score → bỏ qua (giống web isDuplicateSnapshot)."""
+    try:
+        history = _redis_get(REDIS_KEY_HISTORY)
+        if not isinstance(history, list):
+            history = []
+        # Loại bỏ data schema cũ thời EA (không có price/bias hợp lệ)
+        history = [h for h in history if isinstance(h, dict) and h.get("price") and h.get("bias")]
+        first = history[0] if history else None
+        is_dup = (
+            first is not None
+            and first.get("time") == snapshot["time"]
+            and first.get("price") == snapshot["price"]
+            and first.get("bias") == snapshot["bias"]
+            and first.get("score") == snapshot["score"]
+        )
+        if not is_dup:
+            history.insert(0, snapshot)
+        history = history[:REDIS_HISTORY_MAX]
+        _redis_set(REDIS_KEY_HISTORY, history, REDIS_HISTORY_TTL_SECONDS)
+    except Exception as e:
+        log.warning("redis_writer: update history lỗi: %s", e)
 
 
 def write_pulse(
@@ -155,4 +204,6 @@ def write_pulse(
             "✅ pulse → Redis: bias=%s price=%.2f score=%.1f",
             bias, price, score,
         )
+        # Cập nhật history để web HistoryTable có data (schema mới, không phải EA cũ)
+        _update_history(snapshot)
     return ok

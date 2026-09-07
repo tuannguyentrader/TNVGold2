@@ -113,9 +113,46 @@ function normalizeSnapshot(raw: PulseSnapshot): PulseSnapshot {
   const vol = raw?.volatility ?? 0;
   return {
     ...raw,
+    price: typeof price === "number" && price > 0 ? price : 0,
+    volatility: typeof vol === "number" ? vol : 0,
+    score: typeof raw?.score === "number" ? raw.score : 0,
+    // entry phải là object {price, gain} — data schema EA cũ có entry.high/low
+    entry: {
+      price:
+        raw?.entry && typeof raw.entry === "object" && "price" in raw.entry
+          ? (raw.entry.price ?? null)
+          : null,
+      gain:
+        raw?.entry && typeof raw.entry === "object" && "gain" in raw.entry
+          ? (raw.entry.gain ?? null)
+          : null,
+    },
+    sl: raw?.sl ?? null,
+    tp: raw?.tp ?? null,
     rangeLow: raw?.rangeLow ?? (price > 0 && vol > 0 ? Number((price - vol).toFixed(2)) : null),
     rangeHigh: raw?.rangeHigh ?? (price > 0 && vol > 0 ? Number((price + vol).toFixed(2)) : null),
+    htf: raw?.htf ?? "—",
+    multiTf: raw?.multiTf ?? defaultSnapshot.multiTf,
+    indicators: raw?.indicators ?? defaultSnapshot.indicators,
   };
+}
+
+// Lọc bỏ record rác/schema cũ trong history:
+//  - Không phải dict, thiếu price/bias → bỏ
+//  - entry là object schema EA cũ (high/low, không có price) → normalize lại
+function sanitizeHistory(data: unknown): PulseSnapshot[] {
+  if (!Array.isArray(data)) return [];
+  const out: PulseSnapshot[] = [];
+  for (const item of data) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    const price = rec.price;
+    const bias = rec.bias;
+    if (typeof price !== "number" || price <= 0) continue;
+    if (bias !== "LONG" && bias !== "SHORT" && bias !== "NEUTRAL") continue;
+    out.push(normalizeSnapshot(item as PulseSnapshot));
+  }
+  return out;
 }
 
 export async function getLatestPulse(): Promise<PulseSnapshot> {
@@ -135,10 +172,16 @@ export async function getLatestPulse(): Promise<PulseSnapshot> {
 export async function getPulseHistory(limit: number = 10): Promise<PulseSnapshot[]> {
   try {
     if (!redis) return localHistoryCache || [];
-    const data = await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY);
+    const data = await redis.get<unknown>(KV_KEY_HISTORY);
     if (data && Array.isArray(data)) {
-      localHistoryCache = data;
-      return data.slice(0, limit);
+      const clean = sanitizeHistory(data);
+      if (clean.length > 0) {
+        localHistoryCache = clean;
+        return clean.slice(0, limit);
+      }
+      // History toàn rác (schema cũ) → xoá để bot ghi lại từ đầu
+      await redis.del(KV_KEY_HISTORY);
+      return [];
     }
   } catch {
     // fallback
@@ -180,7 +223,8 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
       await redis.set(KV_KEY_PULSE, snapshot, { ex: 600 });
 
       // Update history (idempotent: không ghi snapshot trùng với bản mới nhất)
-      const history = (await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
+      // sanitizeHistory lọc bỏ record schema cũ thời EA nếu còn sót lại
+      const history = sanitizeHistory(await redis.get<unknown>(KV_KEY_HISTORY));
       if (history.length === 0 || !isDuplicateSnapshot(history[0], snapshot)) {
         history.unshift(snapshot);
       }

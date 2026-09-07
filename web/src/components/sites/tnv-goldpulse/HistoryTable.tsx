@@ -87,7 +87,7 @@ export function HistoryTable() {
                   {formatTime(row.time)}
                 </td>
                 <td className="py-2.5 px-3.5 text-white font-bold">
-                  ${row.price.toFixed(2)}
+                  ${(row.price ?? 0).toFixed(2)}
                 </td>
                 <td className="py-2.5 px-3.5">
                   {row.bias === "LONG" && (
@@ -111,10 +111,10 @@ export function HistoryTable() {
                     {row.score * 10}
                   </span>
                 </td>
-                <td className="py-2.5 px-3.5 text-gray-300">${row.volatility.toFixed(2)}</td>
-                <td className="py-2.5 px-3.5 text-white">${row.entry.price != null ? row.entry.price.toFixed(2) : "—"}</td>
+                <td className="py-2.5 px-3.5 text-gray-300">${(row.volatility ?? 0).toFixed(2)}</td>
+                <td className="py-2.5 px-3.5 text-white">${row.entry?.price != null ? row.entry.price.toFixed(2) : "—"}</td>
                 <td className="py-2.5 px-3.5 text-[#ff8383]">{row.sl != null ? row.sl.toFixed(2) : "—"}</td>
-                <td className="py-2.5 px-3.5 text-[#61e294]">{row.htf}</td>
+                <td className="py-2.5 px-3.5 text-[#61e294]">{row.htf ?? "—"}</td>
               </tr>
             ))}
           </tbody>

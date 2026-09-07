@@ -190,6 +190,18 @@ def main():
             active_chats.append(int(x))
         except ValueError:
             log.warning("Bỏ qua XAU_CHAT_IDS không hợp lệ: %r", x)
+    # ADMIN_CHAT_IDS luôn nhận tin tự động (chat cá nhân của admin)
+    for x in os.environ.get("ADMIN_CHAT_IDS", "").split(","):
+        x = x.strip()
+        if not x:
+            continue
+        try:
+            cid = int(x)
+            if cid not in active_chats:
+                active_chats.append(cid)
+                log.info("Thêm admin chat %s vào active chats", cid)
+        except ValueError:
+            log.warning("Bỏ qua ADMIN_CHAT_IDS không hợp lệ: %r", x)
     set_active_chats(active_chats)
     # Khôi phục từ DB (các chat đã /start trước đó, không bị mất khi restart)
     load_active_chats_from_db()
