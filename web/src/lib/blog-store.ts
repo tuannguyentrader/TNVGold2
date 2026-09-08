@@ -198,6 +198,28 @@ export async function listPosts(options?: { limit?: number; type?: string }): Pr
   return posts.slice(0, limit);
 }
 
+/**
+ * Timestamp (ms) của bài pulse tự động GẦN NHẤT, hoặc 0 nếu chưa có.
+ * Rẻ hơn listPosts: chỉ đọc index (mảng slug đã unshift mới-nhất-trước)
+ * và fetch tối đa 5 key gần đầu.
+ */
+export async function getLatestPulsePostAt(): Promise<number> {
+  if (!redis) return 0;
+  try {
+    const slugs = (await redis.get<string[]>(KV_KEY_INDEX)) || [];
+    const pulseSlugs = slugs.filter((s) => s.startsWith("xau-pulse-")).slice(0, 5);
+    if (pulseSlugs.length === 0) return 0;
+    const keys = pulseSlugs.map((s) => KV_KEY_POST(s));
+    const found = await redis.mget<(BlogPost | null)[]>(...keys);
+    const times = found
+      .filter((p): p is BlogPost => !!p && typeof p.publishedAt === "number")
+      .map((p) => p.publishedAt);
+    return times.length ? Math.max(...times) : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export async function getPost(slug: string): Promise<BlogPost | null> {
   seedIfEmpty();
 

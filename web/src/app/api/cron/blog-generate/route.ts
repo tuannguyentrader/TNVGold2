@@ -1,12 +1,17 @@
 // Cron endpoint — tạo bài blog tự động từ pulse hiện tại
-// Được gọi bởi Vercel Cron mỗi giờ
+// Được cron-job.org gọi mỗi giờ, nhưng code TỰ GIỚI HẠN còn ~6 bài/ngày
+// (xem MIN_HOURS_BETWEEN_POSTS) để tránh spam thin/duplicate content làm
+// tụt SEO cả site.
 
 import { NextResponse } from "next/server";
-import { createPost } from "@/lib/blog-store";
+import { createPost, getLatestPulsePostAt } from "@/lib/blog-store";
 import { getLatestPulse } from "@/lib/blog-helpers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // giây
+
+// Số giờ tối thiểu giữa 2 bài pulse tự động
+const MIN_HOURS_BETWEEN_POSTS = 4;
 
 export async function GET(request: Request) {
   // Auth — CHỈ chấp nhận Bearer TNV_SECRET_KEY.
@@ -37,6 +42,20 @@ export async function GET(request: Request) {
         success: true,
         skipped: "no-fresh-pulse",
         message: "Pulse trống hoặc hết hạn — bỏ qua lần này, đợi bot ghi lại",
+      });
+    }
+
+    // Nhịp tối thiểu 4 giờ giữa 2 bài pulse — cron gọi mỗi giờ nhưng lần
+    // thừa tự bỏ qua (HTTP 200, không fail alert). Chống 24 bài/ngày trùng
+    // nội dung làm tụt SEO.
+    const MIN_MS = MIN_HOURS_BETWEEN_POSTS * 60 * 60 * 1000;
+    const lastPostAt = await getLatestPulsePostAt();
+    if (lastPostAt && Date.now() - lastPostAt < MIN_MS) {
+      const minsLeft = Math.ceil((MIN_MS - (Date.now() - lastPostAt)) / 60000);
+      return NextResponse.json({
+        success: true,
+        skipped: "throttled",
+        message: `Bài trước mới ${Math.round((Date.now() - lastPostAt) / 60000)} phút — còn ${minsLeft} phút nữa mới đăng tiếp`,
       });
     }
 
