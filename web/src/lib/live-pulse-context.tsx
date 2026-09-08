@@ -147,25 +147,35 @@ export function LivePulseProvider({
             return;
           }
 
-          // Functional updates: tránh stale closure (fetchLivePulse giữ reference
-          // của render đầu trong useEffect([])) — merge với state mới nhất.
-          setPulse(newPulse);
-          setHistory((prev) =>
-            Array.isArray(json.history) && json.history.length > 0 ? json.history : prev
-          );
+          // Merge history: /api/pulse chỉ trả 25 bản gần nhất (payload nhẹ),
+          // SSR đã load đầy đủ 500 bản. Gộp: bản mới từ API + phần cũ của prev
+          // mà API không có (so theo time+price+bias), giữ tối đa 500.
+          const apiHistory: PulseSnapshot[] = Array.isArray(json.history)
+            ? json.history
+            : [];
+          setHistory((prev) => {
+            if (apiHistory.length === 0) return prev;
+            const seen = new Set(
+              apiHistory.map((r) => `${r.time}|${r.price}|${r.bias}`)
+            );
+            const older = prev.filter(
+              (r) => !seen.has(`${r.time}|${r.price}|${r.bias}`)
+            );
+            return [...apiHistory, ...older].slice(0, 500);
+          });
           setIsLiveConnected(newConnected);
           setLastUpdated(newLastUpdated);
 
-          // Lưu cache để lần load sau hiển thị ngay
-          saveCache({
-            pulse: newPulse,
-            history:
-              Array.isArray(json.history) && json.history.length > 0
-                ? json.history
-                : history, // saveCache dùng cho lần mở sau — giá trị này OK
-            isLiveConnected: newConnected,
-            lastUpdated: newLastUpdated,
-            cachedAt: Date.now(),
+          // Lưu cache để lần load sau hiển thị ngay (chỉ giữ 50 bản cache)
+          setHistory((merged) => {
+            saveCache({
+              pulse: newPulse,
+              history: merged.slice(0, 50),
+              isLiveConnected: newConnected,
+              lastUpdated: newLastUpdated,
+              cachedAt: Date.now(),
+            });
+            return merged;
           });
         }
       }

@@ -15,7 +15,9 @@ export default async function GoldPulseRoute() {
   // Fetch data TRÊN SERVER (trước khi gửi HTML về client)
   // → User nhận được HTML có data sẵn, không phải đợi client fetch
   const pulse = await getLatestPulse();
-  const history = await getPulseHistory(10);
+  // History đầy đủ (tối đa 500 tín hiệu, chỉ LONG/SHORT) — SSR 1 lần,
+  // client polling 10s sẽ merge bản mới qua /api/pulse
+  const history = await getPulseHistory();
 
   return <TNVGoldPulseApp initialPulse={pulse} initialHistory={history} />;
 }

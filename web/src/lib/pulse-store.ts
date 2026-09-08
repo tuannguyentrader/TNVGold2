@@ -140,6 +140,8 @@ function normalizeSnapshot(raw: PulseSnapshot): PulseSnapshot {
 // Lọc bỏ record rác/schema cũ trong history:
 //  - Không phải dict, thiếu price/bias → bỏ
 //  - entry là object schema EA cũ (high/low, không có price) → normalize lại
+// History mới chỉ chứa tín hiệu LONG/SHORT (bot ghi 1 signal = 1 dòng);
+// NEUTRAL cũ vẫn cho qua để không mất data trước khi bot ghi lại từ đầu.
 function sanitizeHistory(data: unknown): PulseSnapshot[] {
   if (!Array.isArray(data)) return [];
   const out: PulseSnapshot[] = [];
@@ -169,7 +171,7 @@ export async function getLatestPulse(): Promise<PulseSnapshot> {
   return localCache ? normalizeSnapshot(localCache) : defaultSnapshot;
 }
 
-export async function getPulseHistory(limit: number = 10): Promise<PulseSnapshot[]> {
+export async function getPulseHistory(limit: number = 500): Promise<PulseSnapshot[]> {
   try {
     if (!redis) return localHistoryCache || [];
     const data = await redis.get<unknown>(KV_KEY_HISTORY);

@@ -5,7 +5,7 @@ import { History, TrendingUp, TrendingDown, Clock, Filter, ChevronLeft, ChevronR
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 15;
 
 export function HistoryTable() {
   const { language, t } = useLanguage();
@@ -13,6 +13,7 @@ export function HistoryTable() {
   const [filterBias, setFilterBias] = useState<string>("ALL");
   const [page, setPage] = useState(0);
 
+  // History giờ chỉ chứa tín hiệu thật (LONG/SHORT) — bot ghi 1 signal = 1 dòng
   const filtered = useMemo(() => {
     if (filterBias === "ALL") return history;
     return history.filter((r) => r.bias === filterBias);
@@ -24,10 +25,25 @@ export function HistoryTable() {
 
   const formatTime = (time: string) => {
     if (!time || time === "—") return time;
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
-    return `${dateStr} ${time}`;
+    // Bot ghi ISO timestamp (UTC+7) — parse per-row, hiện giờ VN dd/MM HH:mm
+    const d = new Date(time);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleString("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    // Fallback snapshot cũ chỉ có HH:MM:SS — hiển thị nguyên bản
+    return time;
   };
+
+  // Nhãn cột theo ngôn ngữ (fallback text thẳng nếu key chưa có)
+  const colEntry = language === "vi" ? "Entry" : "Entry";
+  const colSL = "SL";
+  const colTP = "TP";
 
   return (
     <section className="qx-history my-5" aria-label={t.historyTitle}>
@@ -38,13 +54,15 @@ export function HistoryTable() {
             {t.historyTitle}
           </h2>
           <p className="text-[0.74rem] text-gray-400 mt-0.5">
-            {t.historySub}
+            {language === "vi"
+              ? "Lịch sử tín hiệu LONG/SHORT — mỗi lần đổi hướng là 1 dòng. N = ATR 20 (độ biến động), SL = 1.5N, TP = 2.0N."
+              : "LONG/SHORT signal history — one row per direction change. N = ATR 20 (volatility), SL = 1.5N, TP = 2.0N."}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 bg-[#111622] p-0.5 rounded-lg border border-white/5">
             <Filter className="w-3 h-3 text-gray-400 ml-1.5" />
-            {(["ALL", "LONG", "SHORT", "NEUTRAL"] as const).map((opt) => (
+            {(["ALL", "LONG", "SHORT"] as const).map((opt) => (
               <button
                 key={opt}
                 onClick={() => { setFilterBias(opt); setPage(0); }}
@@ -60,7 +78,7 @@ export function HistoryTable() {
           </div>
           <div className="flex items-center gap-1.5 text-[0.7rem] text-[#f5c542] font-mono">
             <Clock className="w-3 h-3" />
-            <span>{filtered.length} snapshots</span>
+            <span>{filtered.length} {language === "vi" ? "tín hiệu" : "signals"}</span>
           </div>
         </div>
       </div>
@@ -74,15 +92,15 @@ export function HistoryTable() {
               <th className="py-2.5 px-3.5">{t.colPrice}</th>
               <th className="py-2.5 px-3.5">{t.colSignal}</th>
               <th className="py-2.5 px-3.5">PULSE</th>
-              <th className="py-2.5 px-3.5">{t.colVolatility}</th>
-              <th className="py-2.5 px-3.5">{t.colHigh}</th>
-              <th className="py-2.5 px-3.5">{t.colLow}</th>
-              <th className="py-2.5 px-3.5">{t.colHTF}</th>
+              <th className="py-2.5 px-3.5">N</th>
+              <th className="py-2.5 px-3.5">{colEntry}</th>
+              <th className="py-2.5 px-3.5">{colSL}</th>
+              <th className="py-2.5 px-3.5">{colTP}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 font-mono text-[0.74rem]">
             {paged.map((row, idx) => (
-              <tr key={idx} className="hover:bg-white/[0.04] transition-colors">
+              <tr key={`${row.time}-${idx}`} className="hover:bg-white/[0.04] transition-colors">
                 <td className="py-2.5 px-3.5 text-gray-300 font-medium whitespace-nowrap">
                   {formatTime(row.time)}
                 </td>
@@ -107,14 +125,16 @@ export function HistoryTable() {
                   )}
                 </td>
                 <td className="py-2.5 px-3.5">
-                  <span className={`font-bold ${row.score >= 8 ? "text-[#61e294]" : row.score >= 5 ? "text-[#f5c542]" : "text-gray-400"}`}>
-                    {row.score * 10}
+                  <span className={`font-bold ${row.score >= 0.8 ? "text-[#61e294]" : row.score >= 0.5 ? "text-[#f5c542]" : "text-gray-400"}`}>
+                    {row.score > 0 && row.score <= 1 ? (row.score * 10).toFixed(1) : row.score.toFixed(1)}
                   </span>
                 </td>
-                <td className="py-2.5 px-3.5 text-gray-300">${(row.volatility ?? 0).toFixed(2)}</td>
-                <td className="py-2.5 px-3.5 text-white">${row.entry?.price != null ? row.entry.price.toFixed(2) : "—"}</td>
+                <td className="py-2.5 px-3.5 text-gray-300">{(row.volatility ?? 0).toFixed(2)}</td>
+                <td className="py-2.5 px-3.5 text-white">
+                  {row.entry?.price != null ? `$${row.entry.price.toFixed(2)}` : "—"}
+                </td>
                 <td className="py-2.5 px-3.5 text-[#ff8383]">{row.sl != null ? row.sl.toFixed(2) : "—"}</td>
-                <td className="py-2.5 px-3.5 text-[#61e294]">{row.htf ?? "—"}</td>
+                <td className="py-2.5 px-3.5 text-[#61e294]">{row.tp != null ? row.tp.toFixed(2) : "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -126,12 +146,12 @@ export function HistoryTable() {
             <History className="w-6 h-6 text-[#f5c542]" />
           </div>
           <h3 className="text-sm font-semibold text-white mb-1">
-            {language === "vi" ? "Chưa có dữ liệu lịch sử" : "No history yet"}
+            {language === "vi" ? "Chưa có tín hiệu nào" : "No signals yet"}
           </h3>
           <p className="text-[0.74rem] text-gray-400 max-w-sm">
             {language === "vi"
-              ? "Hệ thống sẽ tự động ghi lại mỗi 5 phút khi bot gửi pulse. Vui lòng đợi hoặc kiểm tra kết nối bot."
-              : "The system will auto-record every 5 minutes when the bot sends a pulse. Please wait or check the bot connection."}
+              ? "Bảng ghi lại mỗi khi hệ thống đổi hướng LONG/SHORT. Khi thị trường NEUTRAL không có lệnh — đợi tín hiệu đầu tiên."
+              : "The table records every LONG/SHORT direction change. No trades while the market is NEUTRAL — waiting for the first signal."}
           </p>
         </div>
       )}

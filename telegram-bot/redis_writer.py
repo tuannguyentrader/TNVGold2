@@ -29,6 +29,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 import requests
@@ -50,8 +51,8 @@ UPSTASH_TOKEN = os.environ.get("KV_REST_API_TOKEN", "")
 REDIS_KEY = "tnv:current_pulse"
 REDIS_KEY_HISTORY = "tnv:pulse_history"
 REDIS_TTL_SECONDS = 600  # 10 phút — đủ để web luôn thấy data kể cả khi bot bị lag 1-2 cycle
-REDIS_HISTORY_TTL_SECONDS = 7 * 24 * 3600  # history giữ 7 ngày
-REDIS_HISTORY_MAX = 15  # web cũng giữ 15 bản (giống pulse-store.ts)
+REDIS_HISTORY_TTL_SECONDS = 90 * 24 * 3600  # history giữ 90 ngày
+REDIS_HISTORY_MAX = 500  # 500 tín hiệu (~1 năm với 10 signals/ngày, ~300KB)
 
 
 def _redis_set(key: str, value, ttl: int = REDIS_TTL_SECONDS) -> bool:
@@ -104,26 +105,41 @@ def _redis_get(key: str):
 
 
 def _update_history(snapshot: dict):
-    """Ghi snapshot vào history (unshift + dedupe + giới hạn 15 bản).
-    Dedupe: cùng time + price + bias + score → bỏ qua (giống web isDuplicateSnapshot)."""
+    """Ghi snapshot vào history — CHỈ khi có tín hiệu thật (LONG/SHORT).
+
+    Thiết kế: 1 signal = 1 dòng lịch sử. NEUTRAL không ghi (tránh 288 dòng
+   /ngày trống entry/sl). Cùng hướng liên tiếp (LONG→LONG) cũng bỏ qua —
+    chỉ ghi khi HƯỚNG ĐỔI (LONG→SHORT, NEUTRAL→SHORT...). Giữ 500 tín hiệu
+    / 90 ngày (~2MB Upstash, <1% free tier).
+    """
     try:
+        if snapshot.get("bias") not in ("LONG", "SHORT"):
+            return  # NEUTRAL — không phải lệnh, không ghi history
+
         history = _redis_get(REDIS_KEY_HISTORY)
         if not isinstance(history, list):
             history = []
-        # Loại bỏ data schema cũ thời EA (không có price/bias hợp lệ)
+        # Loại bỏ data rác/schema cũ (không có price/bias hợp lệ)
         history = [h for h in history if isinstance(h, dict) and h.get("price") and h.get("bias")]
+
         first = history[0] if history else None
-        is_dup = (
+        # Cùng hướng liên tiếp → bỏ qua (chỉ ghi khi hướng ĐỔI hoặc là tín hiệu mới sau NEUTRAL)
+        if first is not None and first.get("bias") == snapshot.get("bias"):
+            return
+        # Trùng thời điểm + giá + hướng (idempotent khi bot restart giữa chu kỳ)
+        if (
             first is not None
             and first.get("time") == snapshot["time"]
             and first.get("price") == snapshot["price"]
             and first.get("bias") == snapshot["bias"]
-            and first.get("score") == snapshot["score"]
-        )
-        if not is_dup:
-            history.insert(0, snapshot)
+        ):
+            return
+
+        history.insert(0, snapshot)
         history = history[:REDIS_HISTORY_MAX]
         _redis_set(REDIS_KEY_HISTORY, history, REDIS_HISTORY_TTL_SECONDS)
+        log.info("✅ history ← signal %s @ $%.2f (%d bản)", snapshot.get("bias"),
+                 snapshot.get("price", 0), len(history))
     except Exception as e:
         log.warning("redis_writer: update history lỗi: %s", e)
 
@@ -168,7 +184,9 @@ def write_pulse(
 
     snapshot = {
         "symbol": "XAUUSD",
-        "time": time.strftime("%H:%M:%S"),
+        # ISO timestamp đầy đủ (giờ VN UTC+7) — web parse per-row, không gán
+        # ngày hôm nay cho mọi row như trước
+        "time": datetime.now(timezone(timedelta(hours=7))).isoformat(),
         "price": float(price),
         "bias": bias if bias in ("LONG", "SHORT", "NEUTRAL") else "NEUTRAL",
         "score": float(score) if score is not None else 0.0,
