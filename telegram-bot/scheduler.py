@@ -404,13 +404,18 @@ def check_auto_signals(enabled_chats=None):
             # Quota: free chỉ nhận giới hạn signals/ngày (config.TIER_DAILY_LIMITS),
             # pro gửi bình thường. Signal ĐÃ được lưu bảng signals cho mọi tier ở trên —
             # chỉ giới hạn VIỆC GỬI qua _send_callback.
+            delivered = []
             for cid in enabled_chats:
                 tier = get_tier(cid)
                 if tier != "pro" and not check_quota(cid, "signals"):
+                    log.info("⏭️ Skip chat %s: hết quota signals hôm nay (tier=%s)", cid, tier)
                     continue  # free hết quota hôm nay → bỏ qua chat này cho signal này
                 mem_key = f"{cid}:{stype}|{day_key}"
                 last_mem = _sent_auto.get(mem_key)
                 if last_mem and (now_ts - last_mem) < dedupe_minutes * 60:
+                    log.info("⏭️ Skip chat %s: dedupe %d phút (còn %d phút)",
+                             cid, dedupe_minutes,
+                             int((dedupe_minutes * 60 - (now_ts - last_mem)) / 60) + 1)
                     continue
                 _sent_auto[mem_key] = now_ts
                 if _send_callback:
@@ -418,13 +423,16 @@ def check_auto_signals(enabled_chats=None):
                         chat_lang = get_lang(cid)
                         text = texts.get(chat_lang, texts.get("vi", ""))
                         _send_callback(chat_id=cid, text=text)
+                        delivered.append(cid)
                         if tier != "pro":
                             incr_usage(cid, "signals", 1)  # trừ quota sau khi gửi thành công
                     except Exception as e:
                         log.error("Send auto signal %d lỗi: %s", cid, e)
 
-            log.info("📡 Auto signal %s score=%.1f entry=%.2f sl=%.2f tp=%.2f",
-                     stype, score, entry, sl, tp)
+            log.info("📡 Auto signal %s score=%.1f entry=%.2f sl=%.2f tp=%.2f → %d/%d chat: %s",
+                     stype, score, entry, sl, tp,
+                     len(delivered), len(enabled_chats),
+                     ", ".join(str(c) for c in delivered) or "KHÔNG AI")
             sent_any = True
 
         if not sent_any:

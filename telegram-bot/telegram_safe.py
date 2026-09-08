@@ -77,19 +77,45 @@ def escape_md(text: str) -> str:
 
 
 async def send(bot, chat_id: int, text: str, parse_mode="Markdown", **kwargs):
-    """Gửi message an toàn với Markdown."""
+    """Gửi message an toàn với Markdown.
+
+    Tôn trọng Telegram flood control (429 RetryAfter): khi API báo 'thử lại
+    sau N giây' thì CHỜ đúng N giây rồi gửi lại, thay vì retry ngay (retry
+    ngay sẽ ăn 429 tiếp và làm MẤT tin nhắn — nguyên nhân channel/group và
+    chat cá nhân nhận tin không đồng đều khi gửi cùng lúc nhiều chat).
+    """
+    import asyncio
+    from telegram.error import RetryAfter
+
     safe = escape_md(text)
-    try:
-        return await bot.send_message(
-            chat_id=chat_id, text=safe, parse_mode=parse_mode, **kwargs
-        )
-    except Exception as e:
-        log.warning("Send Markdown lỗi: %s — thử plain", e)
+    for attempt in range(3):
+        try:
+            return await bot.send_message(
+                chat_id=chat_id, text=safe, parse_mode=parse_mode, **kwargs
+            )
+        except RetryAfter as e:
+            wait = min(float(getattr(e, "retry_after", 3) or 3), 30)
+            log.warning("Send chat %s bị flood control — chờ %.1fs (lần %d)",
+                        chat_id, wait, attempt + 1)
+            await asyncio.sleep(wait)
+            continue
+        except Exception as e:
+            log.warning("Send Markdown lỗi: %s — thử plain", e)
+            break
+
+    # Fallback plain text (lỗi parse Markdown) — cũng tôn trọng RetryAfter
+    for attempt in range(3):
         try:
             return await bot.send_message(chat_id=chat_id, text=text, **kwargs)
+        except RetryAfter as e:
+            wait = min(float(getattr(e, "retry_after", 3) or 3), 30)
+            log.warning("Send plain chat %s flood control — chờ %.1fs", chat_id, wait)
+            await asyncio.sleep(wait)
         except Exception as e2:
-            log.error("Send lỗi hoàn toàn: %s", e2)
+            log.error("Send lỗi hoàn toàn chat %s: %s", chat_id, e2)
             return None
+    log.error("Send thất bại sau nhiều lần thử chat %s", chat_id)
+    return None
 
 
 async def edit(query, text: str, parse_mode="Markdown", **kwargs):
