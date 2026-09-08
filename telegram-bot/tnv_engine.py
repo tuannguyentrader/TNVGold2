@@ -71,13 +71,20 @@ def get_higher_tf(minutes: int) -> str:
 def is_htf_not_against(candles_htf, is_long: bool, lookback=5):
     """
     Kiểm tra Higher Timeframe không chống lại hướng giao dịch.
-    Giống IsHTFNotAgainst trong MQL5.
+    Port CHÍNH XÁC IsHTFNotAgainst trong MQL5 (v3.26):
+      - CopyClose(..., start=1, count=5) → 5 nến, bỏ nến đang hình thành
+      - Loop i=1..3 so [i] vs [i+1] → chỉ dùng shifts 2..5
+        (BỎ QUA nến đóng mới nhất shift 1 — quirk của indicator gốc,
+         giữ nguyên để score khớp 100% với MT5)
+
+    ĐẦU VÀO: list tăng dần, phần tử CUỐI là nến đang hình thành
+    (get_rates MT5 count=30 → candles[-30] shift 5 ... candles[-2] shift 1).
     Trả True nếu HTF ủng hộ hoặc trung lập, False nếu chống lại.
     """
     if len(candles_htf) < lookback:
-        return True  # không đủ dữ liệu → không filter
+        return True  # không đủ dữ liệu → không filter (giống indicator)
 
-    htf_candles = candles_htf[-(lookback + 1):-1]  # bỏ nến đang hình thành
+    htf_candles = candles_htf[-(lookback + 1):-1]  # shifts 5,4,3,2,1 (bỏ nến đang hình thành)
     if len(htf_candles) < 4:
         return True
 

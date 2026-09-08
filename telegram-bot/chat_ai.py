@@ -67,7 +67,9 @@ def _market_data(lang="vi") -> str:
         sig_txt = ("CHỜ — không có tín hiệu." if lang == "vi"
                    else "WAIT — no signal.")
         try:
-            result = analyze_tnv(candles, use_system1=True, use_system2=False)
+            from scheduler import _get_htf_candles  # lazy import — tránh circular
+            result = analyze_tnv(candles, candles_htf=_get_htf_candles(),
+                                 use_system1=True, use_system2=False)
             if "error" not in result:
                 for sig in result.get("signals", []):
                     if sig.get("type") in ("LONG", "SHORT"):

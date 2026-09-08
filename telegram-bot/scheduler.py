@@ -246,6 +246,58 @@ def check_news_alerts(enabled_chats=None):
         log.warning("News alert lỗi: %s", e)
 
 
+def _get_htf_candles(symbol: str = "XAUUSD"):
+    """
+    Lấy nến Higher-Timeframe (M15) cho bộ lọc HTF của TNV engine.
+
+    Vì sao cần: indicator gốc (10s TNV V2.mq5 v3.26) LUÔN cộng +2 điểm score
+    khi IsHTFNotAgainst() đồng thuận. Trước đây scheduler không truyền
+    candles_htf → filter này không bao giờ chạy → score bot thấp hơn MT5
+    tới 2 điểm (8 thay vì 10) và có thể chặn nhầm lệnh đạt min_score.
+
+    Ưu tiên MT5 trực tiếp (giống bot.py /xau); fallback: resample nến M5
+    trong SQLite thành M15 (3 nến M5 = 1 nến M15).
+    Trả list tăng dần, phần tử CUỐI là nến đang hình thành (engine tự bỏ),
+    hoặc None nếu không có dữ liệu → engine coi như không filter.
+    """
+    try:
+        from mt5_connector import get_rates
+        htf = get_rates(symbol=symbol, timeframe="M15", count=30)
+        if htf and len(htf) >= 6:
+            return htf
+    except Exception as e:
+        log.debug("HTF MT5 lỗi (%s) — thử resample từ M5", e)
+
+    # Fallback: gộp 3 nến M5 → 1 nến M15
+    try:
+        m5 = get_candles(limit=90)
+        if not m5 or len(m5) < 18:
+            return None
+        groups = {}
+        for c in m5:
+            ts = c.get("ts")
+            if not ts:
+                continue
+            key = (int(ts) // 900) * 900
+            g = groups.get(key)
+            if g is None:
+                groups[key] = {
+                    "ts": key, "open": c["open"], "high": c["high"],
+                    "low": c["low"], "close": c["close"],
+                    "volume": c.get("volume", 0),
+                }
+            else:
+                g["high"] = max(g["high"], c["high"])
+                g["low"] = min(g["low"], c["low"])
+                g["close"] = c["close"]
+                g["volume"] = g.get("volume", 0) + c.get("volume", 0)
+        out = [groups[k] for k in sorted(groups)]
+        return out if len(out) >= 6 else None
+    except Exception as e:
+        log.debug("HTF resample M5→M15 lỗi: %s", e)
+        return None
+
+
 def check_auto_signals(enabled_chats=None):
     """
     Feature 1 — Tín hiệu TNV tự động.
@@ -305,7 +357,7 @@ def check_auto_signals(enabled_chats=None):
             log.info("Auto signal: mới %d nến, cần ≥22", len(candles))
             return
 
-        result = analyze_tnv(candles, use_system1=True, use_system2=False)
+        result = analyze_tnv(candles, candles_htf=_get_htf_candles(), use_system1=True, use_system2=False)
         if "error" in result:
             log.info("Auto signal bỏ qua: %s", result["error"])
             return
@@ -553,7 +605,7 @@ def _publish_pulse_to_redis():
         if not candles or len(candles) < 22:
             return
 
-        result = analyze_tnv(candles, use_system1=True, use_system2=False)
+        result = analyze_tnv(candles, candles_htf=_get_htf_candles(), use_system1=True, use_system2=False)
         if "error" in result:
             return
 
