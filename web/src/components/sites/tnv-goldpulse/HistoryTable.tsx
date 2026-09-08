@@ -1,27 +1,47 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { History, TrendingUp, TrendingDown, Clock, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { History, TrendingUp, TrendingDown, Clock, Filter, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
+
+// Khoảng thời gian lọc (theo ngày — tính lùi từ bây giờ)
+const PERIODS = [
+  { key: "7d", days: 7 },
+  { key: "30d", days: 30 },
+  { key: "90d", days: 90 },
+] as const;
 
 export function HistoryTable() {
   const { language, t } = useLanguage();
   const { history } = useLivePulse();
   const [filterBias, setFilterBias] = useState<string>("ALL");
+  const [period, setPeriod] = useState<string>("30d"); // mặc định: 30 ngày
   const [page, setPage] = useState(0);
 
-  // History giờ chỉ chứa tín hiệu thật (LONG/SHORT) — bot ghi 1 signal = 1 dòng
+  // Lọc kết hợp: hướng + khoảng thời gian
   const filtered = useMemo(() => {
-    if (filterBias === "ALL") return history;
-    return history.filter((r) => r.bias === filterBias);
-  }, [history, filterBias]);
+    const days = PERIODS.find((p) => p.key === period)?.days ?? 30;
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return history.filter((r) => {
+      if (filterBias !== "ALL" && r.bias !== filterBias) return false;
+      const ts = new Date(r.time).getTime();
+      if (!isNaN(ts) && ts > 0 && ts < cutoff) return false; // snapshot cũ chỉ có HH:MM:SS → NaN → không lọc
+      return true;
+    });
+  }, [history, filterBias, period]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
   const paged = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
+  const periodLabels: Record<string, { vi: string; en: string }> = {
+    "7d": { vi: "7 ngày", en: "7 days" },
+    "30d": { vi: "30 ngày", en: "30 days" },
+    "90d": { vi: "90 ngày", en: "90 days" },
+  };
 
   const formatTime = (time: string) => {
     if (!time || time === "—") return time;
@@ -53,13 +73,25 @@ export function HistoryTable() {
             <History className="w-4 h-4 text-[#f5c542]" />
             {t.historyTitle}
           </h2>
-          <p className="text-[0.74rem] text-gray-400 mt-0.5">
-            {language === "vi"
-              ? "Lịch sử tín hiệu LONG/SHORT — mỗi lần đổi hướng là 1 dòng. N = ATR 20 (độ biến động), SL = 1.5N, TP = 2.0N."
-              : "LONG/SHORT signal history — one row per direction change. N = ATR 20 (volatility), SL = 1.5N, TP = 2.0N."}
-          </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Lọc khoảng thời gian: 7 / 30 / 90 ngày (mặc định 30) */}
+          <div className="flex items-center gap-1 bg-[#111622] p-0.5 rounded-lg border border-white/5">
+            <CalendarDays className="w-3 h-3 text-gray-400 ml-1.5" />
+            {PERIODS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => { setPeriod(p.key); setPage(0); }}
+                className={`text-[0.65rem] px-2 py-0.5 rounded font-medium transition-all cursor-pointer ${
+                  period === p.key
+                    ? "bg-[rgba(245,197,66,0.2)] text-[#f5c542] font-bold"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {language === "vi" ? periodLabels[p.key].vi : periodLabels[p.key].en}
+              </button>
+            ))}
+          </div>
           <div className="flex items-center gap-1 bg-[#111622] p-0.5 rounded-lg border border-white/5">
             <Filter className="w-3 h-3 text-gray-400 ml-1.5" />
             {(["ALL", "LONG", "SHORT"] as const).map((opt) => (
@@ -147,14 +179,31 @@ export function HistoryTable() {
           <div className="w-12 h-12 rounded-full bg-[rgba(245,197,66,0.1)] border border-[rgba(245,197,66,0.25)] flex items-center justify-center mb-3">
             <History className="w-6 h-6 text-[#f5c542]" />
           </div>
-          <h3 className="text-sm font-semibold text-white mb-1">
-            {language === "vi" ? "Chưa có tín hiệu nào" : "No signals yet"}
-          </h3>
-          <p className="text-[0.74rem] text-gray-400 max-w-sm">
-            {language === "vi"
-              ? "Bảng ghi lại mỗi khi hệ thống đổi hướng LONG/SHORT. Khi thị trường NEUTRAL không có lệnh — đợi tín hiệu đầu tiên."
-              : "The table records every LONG/SHORT direction change. No trades while the market is NEUTRAL — waiting for the first signal."}
-          </p>
+          {history.length === 0 ? (
+            // Chưa có data nào trong Redis — bot chưa ghi tín hiệu nào
+            <>
+              <h3 className="text-sm font-semibold text-white mb-1">
+                {language === "vi" ? "Chưa có tín hiệu nào" : "No signals yet"}
+              </h3>
+              <p className="text-[0.74rem] text-gray-400 max-w-sm">
+                {language === "vi"
+                  ? "Bảng ghi lại mỗi khi hệ thống đổi hướng LONG/SHORT. Khi thị trường NEUTRAL không có lệnh — đợi tín hiệu đầu tiên."
+                  : "The table records every LONG/SHORT direction change. No trades while the market is NEUTRAL — waiting for the first signal."}
+              </p>
+            </>
+          ) : (
+            // Có data nhưng filter thời gian/hướng không khớp bản nào
+            <>
+              <h3 className="text-sm font-semibold text-white mb-1">
+                {language === "vi" ? "Không có tín hiệu trong khoảng này" : "No signals in this range"}
+              </h3>
+              <p className="text-[0.74rem] text-gray-400 max-w-sm">
+                {language === "vi"
+                  ? "Thử chọn khoảng thời gian dài hơn (90 ngày) hoặc đổi filter ALL."
+                  : "Try a longer range (90 days) or switch the filter to ALL."}
+              </p>
+            </>
+          )}
         </div>
       )}
 
