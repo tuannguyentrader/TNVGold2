@@ -88,6 +88,7 @@ export function HistoryTable() {
         <table className="w-full text-left border-collapse font-sans">
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.03] text-gray-400 font-semibold uppercase tracking-wider text-[0.68rem]">
+              <th className="py-2.5 px-2.5">#</th>
               <th className="py-2.5 px-3.5">{t.colTime}</th>
               <th className="py-2.5 px-3.5">{t.colPrice}</th>
               <th className="py-2.5 px-3.5">{t.colSignal}</th>
@@ -101,6 +102,11 @@ export function HistoryTable() {
           <tbody className="divide-y divide-white/5 font-mono text-[0.74rem]">
             {paged.map((row, idx) => (
               <tr key={`${row.time}-${idx}`} className="hover:bg-white/[0.04] transition-colors">
+                {/* Số thứ tự toàn cục: trang 0 bắt đầu từ 1, trang sau cộng dồn.
+                    #1 = tín hiệu MỚI NHẤT (bot ghi vào đầu mảng). */}
+                <td className="py-2.5 px-2.5 text-gray-500 text-[0.68rem]">
+                  {filtered.length - (safePage * PAGE_SIZE + idx)}
+                </td>
                 <td className="py-2.5 px-3.5 text-gray-300 font-medium whitespace-nowrap">
                   {formatTime(row.time)}
                 </td>
