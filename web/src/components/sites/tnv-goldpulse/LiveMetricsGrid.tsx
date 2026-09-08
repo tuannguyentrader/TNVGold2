@@ -6,10 +6,22 @@ import { ConfidenceBar } from "./ConfidenceBar";
 import { TrendingUp, TrendingDown, Minus, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
+import { usePulseAgeMinutes } from "./DataAgeBadge";
 
 export function LiveMetricsGrid() {
   const { language, t } = useLanguage();
   const { pulse } = useLivePulse();
+
+  // Tuổi THẬT của data (now − Date(pulse.time)), tick lại mỗi 30s; null nếu
+  // không parse được pulse.time (vd bản cũ chỉ có "HH:MM:SS") → không đoán tuổi.
+  const ageMin = usePulseAgeMinutes();
+
+  // Helper format theo ngôn ngữ; unknown → "—"
+  const formatAge = (
+    m: number | null,
+    vi: (m: number) => string,
+    en: (m: number) => string
+  ) => (m == null ? "—" : language === "vi" ? vi(m) : en(m));
 
   const isLong = pulse.bias === "LONG";
   const isShort = pulse.bias === "SHORT";
@@ -34,9 +46,11 @@ export function LiveMetricsGrid() {
         tooltip={t.biasTooltip}
         footer={
           <div className="text-[0.65rem] text-gray-400">
-            {language === "vi"
-              ? `Cách ${pulse.signalAge ?? 0} phút`
-              : `${pulse.signalAge ?? 0} min ago`}
+            {formatAge(
+              ageMin,
+              (m) => `Cập nhật ${m} phút trước`,
+              (m) => `Updated ${m} min ago`
+            )}
           </div>
         }
         flipBack={

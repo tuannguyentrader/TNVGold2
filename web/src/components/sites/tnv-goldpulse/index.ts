@@ -1,5 +1,6 @@
 export { HeroHeader } from "./HeroHeader";
 export { ActionBanner } from "./ActionBanner";
+export { DataAgeBadge } from "./DataAgeBadge";
 export { LiveMetricsGrid } from "./LiveMetricsGrid";
 export { AnalysisSummary } from "./AnalysisSummary";
 export { LiveGoldPriceChart } from "./LiveGoldPriceChart";

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Share2, Check, Zap, Clock, Radio } from "lucide-react";
+import { Share2, Check, Zap } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
+import { DataAgeBadge } from "./DataAgeBadge";
 
 export function ActionBanner() {
   const { language } = useLanguage();
-  const { pulse, isLiveConnected, lastUpdated } = useLivePulse();
+  const { pulse } = useLivePulse();
   const [copied, setCopied] = useState(false);
 
   const isLong = pulse.bias === "LONG";
@@ -98,33 +99,10 @@ export function ActionBanner() {
         </div>
       </div>
 
-      {/* Middle: Status badge (Live / Waiting) + timestamp */}
+      {/* Middle: Data-age badge — tuổi thật của data = now − Date(pulse.time), tự tick mỗi 30s.
+          (lastUpdated của context là giờ client fetch, KHÔNG phải tuổi data — không hiển thị nữa.) */}
       <div className="flex items-center gap-3 shrink-0">
-        <div
-          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[0.66rem] font-semibold ${
-            isLiveConnected
-              ? "bg-[rgba(97,226,148,0.12)] text-[#61e294] border border-[rgba(97,226,148,0.25)]"
-              : "bg-white/5 text-gray-400 border border-white/10"
-          }`}
-          title={isLiveConnected
-            ? (language === "vi" ? "Đang nhận dữ liệu trực tiếp" : "Receiving live data")
-            : (language === "vi" ? "Đang chờ dữ liệu..." : "Waiting for data...")}
-        >
-          <Radio className={`w-3 h-3 ${isLiveConnected ? "animate-pulse" : ""}`} />
-          <span className="uppercase tracking-wider">
-            {isLiveConnected
-              ? "Live"
-              : (language === "vi" ? "Chờ" : "Idle")}
-          </span>
-        </div>
-
-        {/* Last update timestamp */}
-        {lastUpdated && lastUpdated !== "—" && (
-          <div className="flex items-center gap-1 text-[0.66rem] text-gray-400 font-mono">
-            <Clock className="w-3 h-3" />
-            <span>{lastUpdated}</span>
-          </div>
-        )}
+        <DataAgeBadge />
 
         {/* Right: Clean Circular Share Button */}
         <button

@@ -29,8 +29,8 @@ export function SiteFooter() {
       title: language === "vi" ? "Chính sách Hoàn tiền TNV" : "TNV Refund Policy",
       body:
         language === "vi"
-          ? "TNV cam kết hỗ trợ tối đa cho các gói tài khoản PRO. Chính sách hoàn tiền sẽ được công bố chi tiết khi cập nhật."
-          : "Satisfaction guarantee on PRO subscriptions. Detailed refund terms will be published at launch.",
+          ? "TNV đảm bảo hoàn tiền 100% trong vòng 30 ngày kể từ ngày nâng cấp PRO nếu bạn không hài lòng — không cần lý do, hoàn qua đúng kênh thanh toán trong tối đa 5 ngày làm việc. Có thể huỷ gia hạn bất cứ lúc nào trong cài đặt bot."
+          : "TNV guarantees a 100% refund within 30 days of your PRO upgrade if you are not satisfied — no questions asked, refunded via the original payment channel within 5 business days. Auto-renewal can be cancelled anytime in the bot settings.",
     },
   };
 

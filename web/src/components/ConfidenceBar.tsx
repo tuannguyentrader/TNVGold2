@@ -1,1 +1,0 @@
-export { ConfidenceBar } from "./sites/tnv-goldpulse/ConfidenceBar";

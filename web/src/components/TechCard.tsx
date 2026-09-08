@@ -1,1 +1,0 @@
-export { TechCard } from "./sites/tnv-goldpulse/TechCard";

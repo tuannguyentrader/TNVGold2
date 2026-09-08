@@ -1,1 +1,0 @@
-export { PulseGauge } from "./sites/tnv-goldpulse/PulseGauge";

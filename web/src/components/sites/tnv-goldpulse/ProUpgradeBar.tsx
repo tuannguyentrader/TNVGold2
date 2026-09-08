@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, X } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 export function ProUpgradeBar() {
+  const { language } = useLanguage();
   const [showProModal, setShowProModal] = useState(false);
   const [proToast, setProToast] = useState(false);
 
@@ -99,7 +101,9 @@ export function ProUpgradeBar() {
             <div className="p-3.5 rounded-xl bg-[#111622] border border-[rgba(255,255,255,0.08)] flex items-center justify-between mb-5">
               <div>
                 <div className="text-[0.68rem] text-gray-400">Monthly Pass</div>
-                <div className="text-base font-bold text-white">$49 <span className="text-[0.68rem] text-gray-400 font-normal">/ month</span></div>
+                <div className="text-base font-bold text-white">
+                  {language === "vi" ? "759.000₫" : "$29"} <span className="text-[0.68rem] text-gray-400 font-normal">{language === "vi" ? "/ tháng" : "/ month"}</span>
+                </div>
               </div>
               <div className="flex flex-col items-end gap-1.5">
                 <button

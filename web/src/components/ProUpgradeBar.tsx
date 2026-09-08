@@ -1,1 +1,0 @@
-export { ProUpgradeBar } from "./sites/tnv-goldpulse/ProUpgradeBar";

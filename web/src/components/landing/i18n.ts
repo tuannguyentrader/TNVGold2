@@ -36,7 +36,7 @@ export const i18n = {
       cta: "Bắt đầu miễn phí",
     },
     pricingPro: {
-      name: "Pro", price: "499.000₫", period: "/tháng", badge: "Phổ biến",
+      name: "Pro", price: "759.000₫", period: "/tháng", badge: "Phổ biến",
       features: ["Tín hiệu tự động không giới hạn", "Phân tích AI không giới hạn", "500 chart tùy chỉnh/tháng", "Phân tích ảnh chart", "Tin tức real-time 24/7", "Hỗ trợ ưu tiên qua Telegram"],
       cta: "Liên hệ mua Pro",
     },
@@ -92,7 +92,7 @@ export const i18n = {
       cta: "Start free",
     },
     pricingPro: {
-      name: "Pro", price: "$19", period: "/month", badge: "Popular",
+      name: "Pro", price: "$29", period: "/month", badge: "Popular",
       features: ["Unlimited auto-signals", "Unlimited AI analyses", "500 custom charts/month", "Chart image vision AI", "Real-time news 24/7", "Priority Telegram support"],
       cta: "Buy Pro",
     },

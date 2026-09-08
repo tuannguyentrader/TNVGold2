@@ -1,1 +1,0 @@
-export { InfoTip } from "./sites/tnv-goldpulse/InfoTip";

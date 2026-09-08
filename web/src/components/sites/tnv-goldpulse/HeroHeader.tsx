@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Key, Check, ChevronDown, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { NotificationModal } from "./NotificationModal";
+import { DataAgeBadge } from "./DataAgeBadge";
 import { useLanguage } from "@/lib/language-context";
 
 function getActiveSession(): string {
@@ -98,11 +99,11 @@ export function HeroHeader() {
             </h1>
           </div>
 
-          {/* Live badge — cực nhỏ, góc */}
-          <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-bold tracking-wider uppercase bg-[#18392b] text-[#61e294] border border-[#61e294]/30">
-            <span className="w-1 h-1 rounded-full bg-[#61e294] animate-pulse" />
-            LIVE
-          </span>
+          {/* Data-age badge — tuổi thật của data (now − pulse.time), tick 30s;
+              thay badge "LIVE" cứng trước đây (luôn xanh kể cả khi data cũ/hết). */}
+          <div className="hidden sm:inline-flex">
+            <DataAgeBadge />
+          </div>
 
           {/* Session pill — nhỏ, gold */}
           <span
