@@ -57,10 +57,8 @@ export function TNVGoldPulseApp({ initialPulse, initialHistory }: TNVGoldPulseAp
           </div>
         </div>
 
-        {/* 4. Technical Indicators Grid — chỉ hiện md+ */}
-        <div className="hidden md:block">
-          <TechnicalGrid />
-        </div>
+        {/* 4. Technical Indicators Grid — hiện mọi thiết bị (mobile: grid 2 cột compact) */}
+        <TechnicalGrid />
 
         {/* 5. Gold Session Flow Chart — chỉ hiện md+ */}
         <div className="hidden md:block">

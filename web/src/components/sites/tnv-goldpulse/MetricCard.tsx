@@ -52,7 +52,7 @@ export function MetricCard({
         }
       }}
     >
-      {tooltip && <span className="hidden sm:block"><InfoTip text={tooltip} /></span>}
+      {tooltip && <InfoTip text={tooltip} />}
 
       {!flipped ? (
         <div className="flex flex-col justify-between h-full w-full">

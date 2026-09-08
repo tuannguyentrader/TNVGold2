@@ -645,16 +645,29 @@
   .qx-hero-left h1 {
     font-size: 1.3rem;
   }
-  .qx-tech-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .qx-container {
     padding: 12px 10px 48px;
   }
+  /* Mobile: tech grid về 2 cột — rule này nằm SAU block max-width:1024 (3 cột)
+     nên thắng độ trễ cascade; nếu không, điện thoại bị ép 3 cột rất chật */
+  .qx-tech-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 480px) {
-  .qx-tech-grid {
-    grid-template-columns: 1fr;
+/* TechCard — density compact cho mobile (TechnicalGrid hiện trên mọi thiết bị) */
+@media (max-width: 640px) {
+  .qx-tech-card {
+    padding: 8px 9px;
+    min-height: 0;
+  }
+  .qx-tech-card .qx-tech-label {
+    font-size: 0.68rem;
+  }
+  .qx-tech-card .qx-tech-value {
+    font-size: 0.95rem;
+  }
+  .qx-tech-card .qx-tech-note {
+    font-size: 0.68rem;
   }
 }
