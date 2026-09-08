@@ -270,8 +270,15 @@ def get_tier(chat_id: int) -> str:
     Tự động hạ 'free' nếu đã hết hạn.
     Admin (ADMIN_CHAT_IDS) luôn 'pro'.
 
+    Group/channel (chat_id âm) luôn 'pro': đây là kênh phân phối của chủ bot,
+    không phải user free — nếu để free thì hết 5 signals/ngày là kênh im lặng
+    trong khi chat cá nhân admin vẫn nhận đủ → lượng tin lệch nhau giữa kênh.
+
     ⚠️ Hàm DUY NHẤT nên dùng để kiểm tra quyền tier trong toàn bộ codebase.
     """
+    # Kênh phân phối (group/channel) — exempt quota
+    if isinstance(chat_id, int) and chat_id < 0:
+        return "pro"
     try:
         from config import ADMIN_CHAT_IDS
         if chat_id in ADMIN_CHAT_IDS:
