@@ -90,7 +90,6 @@ export function HistoryTable() {
             <tr className="border-b border-white/10 bg-white/[0.03] text-gray-400 font-semibold uppercase tracking-wider text-[0.68rem]">
               <th className="py-2.5 px-2.5">#</th>
               <th className="py-2.5 px-3.5">{t.colTime}</th>
-              <th className="py-2.5 px-3.5">{t.colPrice}</th>
               <th className="py-2.5 px-3.5">{t.colSignal}</th>
               <th className="py-2.5 px-3.5">PULSE</th>
               <th className="py-2.5 px-3.5">N</th>
@@ -109,9 +108,6 @@ export function HistoryTable() {
                 </td>
                 <td className="py-2.5 px-3.5 text-gray-300 font-medium whitespace-nowrap">
                   {formatTime(row.time)}
-                </td>
-                <td className="py-2.5 px-3.5 text-white font-bold">
-                  ${(row.price ?? 0).toFixed(2)}
                 </td>
                 <td className="py-2.5 px-3.5">
                   {row.bias === "LONG" && (
