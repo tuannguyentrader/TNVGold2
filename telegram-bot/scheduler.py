@@ -674,6 +674,29 @@ def _publish_pulse_to_redis():
                 sl_price = round(entry_price + 1.5 * n_use, 2)
                 tp_price = round(entry_price - 2.0 * n_use, 2)
 
+        # ── Giữ bias theo lệnh ĐANG MỞ (thống nhất với thẻ Bias trên web) ──
+        # User chốt: thẻ Bias chỉ về NEUTRAL khi KHÔNG còn lệnh mở. Nếu nến
+        # này không có breakout mới nhưng vẫn còn lệnh LONG/SHORT chưa chạm
+        # TP/SL thì bias hiển thị = hướng lệnh open MỚI NHẤT, và Entry/SL/TP
+        # lấy từ chính lệnh đó (khớp 100% tin nhắn Telegram đã gửi).
+        if bias == "NEUTRAL":
+            try:
+                import signals as signals_mod
+                pend = signals_mod.pending_signals()
+                if pend:
+                    last = pend[-1]  # ORDER BY ts → lệnh mở mới nhất
+                    t = last.get("type")
+                    if t in ("LONG", "SHORT"):
+                        bias = t
+                        if last.get("score") is not None:
+                            score = float(last["score"])
+                        if last.get("entry"):
+                            entry_price = float(last["entry"])
+                            sl_price = float(last["sl"]) if last.get("sl") else None
+                            tp_price = float(last["tp"]) if last.get("tp") else None
+            except Exception as e:
+                log.warning("publish: đọc lệnh đang mở lỗi: %s", e)
+
         # Khi NEUTRAL: ENTRY hiển thị giá hiện tại, EXIT hiển thị range Low-High
         # (kênh Donchian 20 của S1 — 2 ngưỡng breakout bot đang theo dõi)
         range_low = None
@@ -719,20 +742,25 @@ def scheduler_loop(stop_event: threading.Event):
 
         # ── Feature 1: tín hiệu TNV tự động (mỗi 5 phút = nến M5 mới) ──
         if now_vn.minute % 5 == 0:
+            # Thứ tự QUAN TRỌNG: đóng lệnh chạm TP/SL TRƯỚC, rồi mới mở lệnh
+            # mới + publish. Nếu publish chạy trước evaluate, web Bias đọc
+            # pending còn thấy lệnh đã chạm TP/SL → hiển thị sai hướng thêm
+            # 1 chu kỳ (5 phút). Lệnh mới mở sau evaluate nên không bị đóng nhầm.
+            try:
+                import signals
+                candles_close = get_candles(limit=100)
+                if candles_close:
+                    closed = signals.evaluate_open_signals(candles_close)
+                    if closed:
+                        log.info("✅ Auto-close %d tín hiệu chạm TP/SL", closed)
+            except Exception as e:
+                log.warning("evaluate_open_signals lỗi: %s", e)
+
             enabled = [c for c in _active_chat_ids if get_runtime_settings(c)["auto_signal"]]
             if enabled:
                 check_auto_signals(enabled)
             # Ghi pulse lên Upstash Redis (chia sẻ với Web dashboard)
             _publish_pulse_to_redis()
-            # Theo dõi tín hiệu đang mở: tự đóng khi chạm TP/SL
-            try:
-                import signals
-                candles = get_candles(limit=100)
-                closed = signals.evaluate_open_signals(candles)
-                if closed:
-                    log.info("✅ Auto-close %d tín hiệu chạm TP/SL", closed)
-            except Exception as e:
-                log.warning("evaluate_open_signals lỗi: %s", e)
 
         # ── Feature 2: tổng kết cuối ngày (tự kiểm tra giờ/phút) ──
         enabled = [c for c in _active_chat_ids if get_runtime_settings(c)["eod"]]
