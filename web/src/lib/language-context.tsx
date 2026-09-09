@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 export type Language = "vi" | "en";
 
@@ -403,6 +404,7 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
+  const pathname = usePathname() || "/";
 
   useEffect(() => {
     const saved = localStorage.getItem("tnv_lang") as Language;
@@ -410,6 +412,69 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setLanguage(saved);
     }
   }, []);
+
+  // Đồng bộ <title> + <html lang> theo ngôn ngữ người dùng chọn.
+  // Metadata tĩnh của Next.js chỉ render 1 bản (vi) trên server — client
+  // toggle VI/EN không đổi được SSR metadata, nên phải sync thủ công.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    // Title trang chủ + per-route (khớp metadata trong app/*/page.tsx)
+    const ROUTE_TITLES: Record<Language, Record<string, string>> = {
+      vi: {
+        "/": "TNV Gold — Phân tích Vàng XAUUSD Real-Time bằng AI",
+        "/goldpulse": "TNV Gold Pulse — Phân tích Thuật toán Real-Time",
+        "/blog": "Blog & Phân tích Vàng XAUUSD",
+        "/news": "Tin tức thị trường Vàng — Gold News",
+      },
+      en: {
+        "/": "TNV Gold — Real-Time XAUUSD Gold Analysis with AI",
+        "/goldpulse": "TNV Gold Pulse — Real-Time Algorithmic Market Analytics",
+        "/blog": "Blog & XAUUSD Gold Analysis",
+        "/news": "Gold Market News",
+      },
+    };
+
+    const path = pathname || "/";
+    const routeTitleRaw =
+      ROUTE_TITLES[language][path] ?? ROUTE_TITLES[language]["/"];
+    // Next metadata template: "%s | TNV Gold" — áp dụng cho mọi trang TRỪ
+    // trang chủ (title default không qua template). Sync phải giữ hậu tố
+    // này ở trang con để không đổi title khi client render lại.
+    const routeTitle =
+      path === "/" ? routeTitleRaw : `${routeTitleRaw} | TNV Gold`;
+
+    // Trang động (/blog/[slug], /news/[id]) — Next đã set title riêng
+    // (bài viết), KHÔNG ghi đè; chỉ sync khi title là bản tĩnh của route.
+    const currentTitle = document.title;
+    const isDynamicPage =
+      (path.startsWith("/blog/") && path.length > "/blog/".length) ||
+      (path.startsWith("/news/") && path.length > "/news/".length);
+
+    document.title = isDynamicPage ? currentTitle : routeTitle;
+
+    const setMeta = (selector: string, value: string) => {
+      const el = document.head.querySelector<HTMLMetaElement>(selector);
+      if (el) el.setAttribute("content", value);
+    };
+    // Description song ngữ (trang chủ) — trang con giữ nguyên description SSR
+    const DESC: Record<Language, string> = {
+      vi: "TNV cung cấp phân tích thuật toán real-time cho vàng XAUUSD: bias, score, multi-timeframe (M5/M15/M30/H1), session flow Tokyo/London/NY, AI analysis bằng tiếng Việt.",
+      en: "TNV provides real-time algorithmic analysis for gold XAUUSD: bias, score, multi-timeframe (M5/M15/M30/H1), Tokyo/London/NY session flow, AI-powered insights.",
+    };
+    const isHome = path === "/";
+    setMeta('meta[name="description"]', DESC[language]);
+    if (!isDynamicPage) {
+      setMeta('meta[property="og:title"]', routeTitle);
+      setMeta('meta[property="og:description"]', DESC[language]);
+      setMeta('meta[name="twitter:title"]', routeTitle);
+      setMeta('meta[name="twitter:description"]', DESC[language]);
+    }
+    if (isHome) {
+      setMeta('meta[property="og:locale"]', language === "vi" ? "vi_VN" : "en_US");
+    }
+    document.documentElement.lang = language;
+  }, [language, pathname]);
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
