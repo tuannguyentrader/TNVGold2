@@ -434,46 +434,81 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         "/news": "Gold Market News",
       },
     };
-
-    const path = pathname || "/";
-    const routeTitleRaw =
-      ROUTE_TITLES[language][path] ?? ROUTE_TITLES[language]["/"];
-    // Next metadata template: "%s | TNV Gold" — áp dụng cho mọi trang TRỪ
-    // trang chủ (title default không qua template). Sync phải giữ hậu tố
-    // này ở trang con để không đổi title khi client render lại.
-    const routeTitle =
-      path === "/" ? routeTitleRaw : `${routeTitleRaw} | TNV Gold`;
-
-    // Trang động (/blog/[slug], /news/[id]) — Next đã set title riêng
-    // (bài viết), KHÔNG ghi đè; chỉ sync khi title là bản tĩnh của route.
-    const currentTitle = document.title;
-    const isDynamicPage =
-      (path.startsWith("/blog/") && path.length > "/blog/".length) ||
-      (path.startsWith("/news/") && path.length > "/news/".length);
-
-    document.title = isDynamicPage ? currentTitle : routeTitle;
-
-    const setMeta = (selector: string, value: string) => {
-      const el = document.head.querySelector<HTMLMetaElement>(selector);
-      if (el) el.setAttribute("content", value);
-    };
     // Description song ngữ (trang chủ) — trang con giữ nguyên description SSR
     const DESC: Record<Language, string> = {
       vi: "TNV cung cấp phân tích thuật toán real-time cho vàng XAUUSD: bias, score, multi-timeframe (M5/M15/M30/H1), session flow Tokyo/London/NY, AI analysis bằng tiếng Việt.",
       en: "TNV provides real-time algorithmic analysis for gold XAUUSD: bias, score, multi-timeframe (M5/M15/M30/H1), Tokyo/London/NY session flow, AI-powered insights.",
     };
+
+    const path = pathname || "/";
+    const isDynamicPage =
+      (path.startsWith("/blog/") && path.length > "/blog/".length) ||
+      (path.startsWith("/news/") && path.length > "/news/".length);
+    // Trang động (/blog/[slug], /news/[id]) — Next set title riêng (bài viết),
+    // KHÔNG được đè; chỉ sync title khi là trang tĩnh.
     const isHome = path === "/";
-    setMeta('meta[name="description"]', DESC[language]);
-    if (!isDynamicPage) {
-      setMeta('meta[property="og:title"]', routeTitle);
-      setMeta('meta[property="og:description"]', DESC[language]);
-      setMeta('meta[name="twitter:title"]', routeTitle);
-      setMeta('meta[name="twitter:description"]', DESC[language]);
-    }
-    if (isHome) {
-      setMeta('meta[property="og:locale"]', language === "vi" ? "vi_VN" : "en_US");
-    }
-    document.documentElement.lang = language;
+
+    const routeTitleRaw =
+      ROUTE_TITLES[language][path] ?? ROUTE_TITLES[language]["/"];
+    // Next metadata template: "%s | TNV Gold" — áp dụng cho mọi trang TRỪ
+    // trang chủ (title default không qua template). Giữ hậu tố này ở trang con.
+    const routeTitle =
+      isDynamicPage
+        ? null
+        : path === "/"
+          ? routeTitleRaw
+          : `${routeTitleRaw} | TNV Gold`;
+
+    const setMeta = (selector: string, value: string) => {
+      const el = document.head.querySelector<HTMLMetaElement>(selector);
+      if (el) el.setAttribute("content", value);
+    };
+
+    const apply = () => {
+      // html lang luôn theo ngôn ngữ đã chọn
+      document.documentElement.lang = language;
+      // Trang tĩnh: ghi title + meta; trang động bỏ qua (Next quản lý)
+      if (routeTitle && document.title !== routeTitle) {
+        document.title = routeTitle;
+      }
+      if (!isDynamicPage) {
+        setMeta('meta[name="description"]', DESC[language]);
+        setMeta('meta[property="og:title"]', routeTitle ?? "");
+        setMeta('meta[property="og:description"]', DESC[language]);
+        setMeta('meta[name="twitter:title"]', routeTitle ?? "");
+        setMeta('meta[name="twitter:description"]', DESC[language]);
+      }
+      if (isHome) {
+        setMeta('meta[property="og:locale"]', language === "vi" ? "vi_VN" : "en_US");
+      }
+    };
+
+    apply();
+
+    // QUAN TRỌNG: Next.js (App Router) áp lại metadata SSR lên <head> SAU khi
+    // effect mount chạy → title bị đè về tiếng Việt mặc định. Khi đó state
+    // (language/pathname) không đổi nên effect không chạy lại — title sai
+    // vĩnh viễn tới khi user toggle. MutationObserver re-assert mỗi khi Next
+    // đụng tới head. Chỉ chạy ở trang tĩnh để không đánh nhau với title
+    // động của /blog/[slug], /news/[id].
+    const observer = new MutationObserver(() => {
+      apply();
+    });
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    // Lưới an toàn: vài lần deferred re-apply (metadata đôi khi tới trễ vài tick)
+    const t1 = window.setTimeout(apply, 150);
+    const t2 = window.setTimeout(apply, 600);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
   }, [language, pathname]);
 
   const handleSetLanguage = (lang: Language) => {
