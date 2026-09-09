@@ -422,6 +422,23 @@ def check_auto_signals(enabled_chats=None):
                     "tp": tp,
                 })
 
+                # Ghi vào history Redis cho web — CÙNG NGUỒN với tin nhắn
+                # Telegram ở dưới, nên web không thể thiếu lệnh so với bot.
+                # (Tín hiệu đến được đây đã qua min_score + dedupe 60 phút.)
+                try:
+                    from redis_writer import record_signal_history
+                    record_signal_history(
+                        price=price,
+                        bias=stype,
+                        score=score,
+                        n_value=n_val,
+                        entry_price=entry,
+                        sl_price=sl,
+                        tp_price=tp,
+                    )
+                except Exception as e:
+                    log.warning("record_signal_history lỗi: %s", e)
+
                 # Tin nhắn song ngữ (vi/en) — template mới theo yêu cầu
                 emoji = "🟢" if stype == "LONG" else "🔴"
                 texts = {}

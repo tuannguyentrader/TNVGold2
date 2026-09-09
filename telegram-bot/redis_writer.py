@@ -105,35 +105,27 @@ def _redis_get(key: str):
 
 
 def _update_history(snapshot: dict):
-    """Ghi snapshot vào history — CHỈ khi có tín hiệu thật (LONG/SHORT).
+    """Ghi snapshot vào history list (insert đầu + dedupe + cap 500).
 
-    Thiết kế: 1 signal = 1 dòng lịch sử. NEUTRAL không ghi (tránh 288 dòng
-   /ngày trống entry/sl). Cùng hướng liên tiếp (LONG→LONG) cũng bỏ qua —
-    chỉ ghi khi HƯỚNG ĐỔI (LONG→SHORT, NEUTRAL→SHORT...). Giữ 500 tín hiệu
-    / 90 ngày (~2MB Upstash, <1% free tier).
+    Được gọi TỪ record_signal_history — tức CHỈ với tín hiệu mà bot thực sự
+    gửi qua Telegram (cùng điều kiện: score đạt min_score, qua dedupe 60 phút).
+    Nhờ vậy Web HistoryTable = chính xác các lệnh Telegram đã phát, 1-1.
     """
     try:
-        if snapshot.get("bias") not in ("LONG", "SHORT"):
-            return  # NEUTRAL — không phải lệnh, không ghi history
-
         history = _redis_get(REDIS_KEY_HISTORY)
         if not isinstance(history, list):
             history = []
         # Loại bỏ data rác/schema cũ (không có price/bias hợp lệ)
         history = [h for h in history if isinstance(h, dict) and h.get("price") and h.get("bias")]
 
-        first = history[0] if history else None
-        # Cùng hướng liên tiếp → bỏ qua (chỉ ghi khi hướng ĐỔI hoặc là tín hiệu mới sau NEUTRAL)
-        if first is not None and first.get("bias") == snapshot.get("bias"):
-            return
-        # Trùng thời điểm + giá + hướng (idempotent khi bot restart giữa chu kỳ)
-        if (
-            first is not None
-            and first.get("time") == snapshot["time"]
-            and first.get("price") == snapshot["price"]
-            and first.get("bias") == snapshot["bias"]
-        ):
-            return
+        # Idempotent: trùng (time, price, bias) → bot restart giữa chu kỳ
+        for h in history[:3]:
+            if (
+                h.get("time") == snapshot["time"]
+                and h.get("price") == snapshot["price"]
+                and h.get("bias") == snapshot["bias"]
+            ):
+                return
 
         history.insert(0, snapshot)
         history = history[:REDIS_HISTORY_MAX]
@@ -142,6 +134,48 @@ def _update_history(snapshot: dict):
                  snapshot.get("price", 0), len(history))
     except Exception as e:
         log.warning("redis_writer: update history lỗi: %s", e)
+
+
+def record_signal_history(
+    price: float,
+    bias: str,           # "LONG" | "SHORT"
+    score: float,
+    n_value: Optional[float] = None,
+    entry_price: Optional[float] = None,
+    sl_price: Optional[float] = None,
+    tp_price: Optional[float] = None,
+):
+    """Ghi 1 dòng history cho MỖI tín hiệu bot thực sự gửi qua Telegram.
+
+    Được gọi từ scheduler.check_auto_signals ngay sau khi tín hiệu qua hết
+    bộ lọc (min_score + dedupe 60 phút) — cùng nguồn với tin nhắn, nên web
+    không thể thiếu lệnh so với Telegram.
+    """
+    if bias not in ("LONG", "SHORT"):
+        return
+    if not price or price <= 0:
+        return
+
+    gain = 0.0
+    if entry_price and entry_price > 0:
+        gain = round(((price - entry_price) / entry_price) * 100, 2)
+
+    snapshot = {
+        "symbol": "XAUUSD",
+        "time": datetime.now(timezone(timedelta(hours=7))).isoformat(),
+        "price": float(price),
+        "bias": bias,
+        "score": float(score) if score is not None else 0.0,
+        "volatility": float(n_value) if n_value else 0.0,
+        "entry": {
+            "price": float(entry_price) if entry_price else None,
+            "gain": gain if entry_price else None,
+        },
+        "sl": float(sl_price) if sl_price else None,
+        "tp": float(tp_price) if tp_price else None,
+        "htf": bias,
+    }
+    _update_history(snapshot)
 
 
 def write_pulse(
@@ -222,6 +256,7 @@ def write_pulse(
             "✅ pulse → Redis: bias=%s price=%.2f score=%.1f",
             bias, price, score,
         )
-        # Cập nhật history để web HistoryTable có data (schema mới, không phải EA cũ)
-        _update_history(snapshot)
+        # LƯU Ý: KHÔNG ghi history ở đây. History giờ được ghi từ
+        # scheduler.check_auto_signals (record_signal_history) — đúng những
+        # tín hiệu Telegram thực sự gửi, để web không thiếu lệnh so với bot.
     return ok
