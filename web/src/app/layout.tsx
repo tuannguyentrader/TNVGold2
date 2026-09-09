@@ -103,7 +103,17 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
           rel="stylesheet"
         />
-        {/* Suppress unhandled third-party Chrome extension errors */}
+        {/* Chống flash title VI→EN (và lệch EN mặc định): SSR luôn render
+            metadata tiếng Việt vì server không đọc được localStorage. Script
+            chạy NGAY khi parse (trước paint): nếu ngôn ngữ hiệu lực là EN —
+            kể cả khi user chưa từng lưu (UI mặc định EN) — thì set title +
+            html lang đúng từ giây đầu. Chỉ can thiệp trang tĩnh; /blog/[slug],
+            /news/[id] Next quản title bài viết — bỏ qua. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var lang=null;try{lang=localStorage.getItem("tnv_lang")}catch(e){}if(lang==="vi")return;var p=window.location.pathname;var en={"/":"TNV Gold \u2014 Real-Time XAUUSD Gold Analysis with AI","/goldpulse":"TNV Gold Pulse \u2014 Real-Time Algorithmic Market Analytics | TNV Gold","/blog":"Blog & XAUUSD Gold Analysis | TNV Gold","/news":"Gold Market News | TNV Gold"};if(en[p]){document.title=en[p];document.documentElement.lang="en"}}catch(e){}})();`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
