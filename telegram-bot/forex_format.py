@@ -33,11 +33,15 @@ def format_news(events: list[dict[str, Any]], lang: str = "vi") -> str:
     """
     if not events:
         if lang == "en":
-            return "📭 No USD High/Medium events today."
-        return "📭 Không có sự kiện USD High/Medium hôm nay."
+            return "📭 No USD High/Medium events today. (by @TNVGold_bot)"
+        return "📭 Không có sự kiện USD High/Medium hôm nay. (by @TNVGold_bot)"
 
     high = [e for e in events if e.get("impact") == "High"]
     medium = [e for e in events if e.get("impact") == "Medium"]
+
+    # Thương hiệu — đặt NGOÀI cặp *bold* (escape_md biến username thành LINK;
+    # link lồng trong entity sẽ lỗi parse theo Markdown legacy của Telegram).
+    brand = "(by @TNVGold_bot)"
 
     # Template strings — bilingual
     if lang == "en":
@@ -58,7 +62,7 @@ def format_news(events: list[dict[str, Any]], lang: str = "vi") -> str:
         line_sep = "━" * 12
 
     lines: list[str] = [
-        f"⏰ *{header_title}*",
+        f"⏰ *{header_title}* {brand}",
         header_source,
         "",
     ]
