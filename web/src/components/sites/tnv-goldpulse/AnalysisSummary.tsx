@@ -3,6 +3,7 @@
 import { PulseGauge } from "./PulseGauge";
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
+import { buildAnalysisText } from "@/lib/analysis-text";
 
 export function AnalysisSummary() {
   const { language, t } = useLanguage();
@@ -17,61 +18,12 @@ export function AnalysisSummary() {
     }
   };
 
-  const gaugeValue = pulse.score * 10; // 0-100 for gauge
+  const gaugeValue = pulse.score * 10; // 0-100 cho kim đồng hồ
   const gaugeColor = gaugeValue >= 60 ? "#61e294" : gaugeValue >= 40 ? "#f5c542" : "#ff8383";
 
-  // Generate live analysis text dynamically based on pulse data
-  const genAnalysis = (): string => {
-    if (pulse.analysisText?.[language]) return pulse.analysisText[language]!;
-
-    const pulseVal = gaugeValue;
-    // entry price (breakout) hoặc current price nếu NEUTRAL
-    const entryRef = pulse.entry.price ?? pulse.price;
-    // resistance/support logic
-    const resistance = pulse.tp ?? pulse.price;
-    const support = pulse.sl ?? pulse.price;
-    // gain text
-    const gainVal = pulse.entry.gain ?? 0;
-    const gainText = gainVal >= 0
-      ? `+${gainVal.toFixed(2)}%`
-      : `${gainVal.toFixed(2)}%`;
-
-    // NEUTRAL case
-    if (pulse.bias === "NEUTRAL") {
-      if (language === "vi") {
-        return `Vàng đang giao dịch đi ngang với xung lực Pulse đạt ${pulseVal}, giá ổn định quanh $${pulse.price.toFixed(2)}. Cấu trúc đa khung thời gian chưa có sự đồng thuận rõ ràng. Theo dõi: phá vỡ trên $${(pulse.price + pulse.volatility).toFixed(2)} để xác nhận đà tăng, hoặc thủng $${(pulse.price - pulse.volatility).toFixed(2)} để kích hoạt xu hướng giảm.`;
-      }
-      return `Gold is trading sideways with Pulse reaching ${pulseVal}, price holding around $${pulse.price.toFixed(2)}. Multi-timeframe structure is not providing clear directional alignment. Watch for: a breakout above $${(pulse.price + pulse.volatility).toFixed(2)} to confirm upside momentum, or a breakdown below $${(pulse.price - pulse.volatility).toFixed(2)} to trigger bearish bias.`;
-    }
-
-    const direction = pulse.bias === "LONG"
-      ? (language === "vi" ? "tăng" : "bullish")
-      : (language === "vi" ? "giảm" : "bearish");
-
-    const dirAdj = pulse.bias === "LONG"
-      ? (language === "vi" ? "mạnh mẽ" : "strong")
-      : (language === "vi" ? "mạnh mẽ" : "strong");
-
-    const alignment = pulse.bias === "LONG"
-      ? (language === "vi" ? "tăng" : "bullish")
-      : (language === "vi" ? "giảm" : "bearish");
-
-    // SHORT bias
-    if (pulse.bias === "SHORT") {
-      if (language === "vi") {
-        return `Vàng đang duy trì đà giảm mạnh mẽ với xung lực Pulse đạt ${pulseVal}, giá giảm ${gainText.replace("+", "").replace("-", "")} dưới mức $${resistance.toFixed(2)} cùng cấu trúc đa khung thời gian đồng thuận mà không gặp cản trở. Theo dõi: đà giảm tiếp diễn dưới $${resistance.toFixed(2)} hướng tới các mục tiêu mở rộng, hoặc nhịp hồi kiểm tra lại ngưỡng kháng cự $${support.toFixed(2)} trước khi hình thành nhịp giảm mới.`;
-      }
-      return `Gold is displaying strong ${direction} momentum as Pulse reaches ${pulseVal} and the price sits ${gainText.replace("+", "").replace("-", " -$")} below the $${resistance.toFixed(2)} level, with higher-timeframe structure providing clean directional alignment without overhead resistance. Watch for: continuation below $${resistance.toFixed(2)} toward lower expansion targets, or a pullback toward the $${support.toFixed(2)} resistance to test supply before the next leg lower.`;
-    }
-
-    // LONG bias (default)
-    if (language === "vi") {
-      return `Vàng đang duy trì đà tăng mạnh mẽ với xung lực Pulse đạt ${pulseVal}, giá bứt phá vượt ${gainText} trên mức $${resistance.toFixed(2)} cùng cấu trúc đa khung thời gian đồng thuận mà không gặp cản trở. Theo dõi: đà tăng tiếp diễn vượt $${resistance.toFixed(2)} hướng tới các mục tiêu mở rộng, hoặc nhịp điều chỉnh kiểm tra lại ngưỡng hỗ trợ $${support.toFixed(2)} trước khi hình thành nhịp tăng mới.`;
-    }
-    return `Gold is displaying strong ${direction} momentum as Pulse reaches ${pulseVal} and the price sits ${gainText} above the $${resistance.toFixed(2)} level, with higher-timeframe structure providing clean directional alignment without overhead resistance. Watch for: continuation above $${resistance.toFixed(2)} toward upper expansion targets, or a pullback toward the $${support.toFixed(2)} support to test demand before the next leg higher.`;
-  };
-
-  const analysisText = genAnalysis();
+  // Câu phân tích được sinh bởi hàm thuần trong lib/analysis-text.ts
+  // (tách ra để test được; xem ghi chú lỗi số liệu tại đó).
+  const analysisText = buildAnalysisText(pulse, language as "vi" | "en");
 
   return (
     <aside className="flex flex-col justify-between h-full p-3.5 bg-[#080c14] rounded-xl border border-white/5 shadow-inner">
@@ -95,8 +47,9 @@ export function AnalysisSummary() {
         <div className="transform transition-transform hover:scale-105 duration-200">
           <PulseGauge
             value={gaugeValue}
-            bandLabel="PULSE"
-            note={`Pulse ${gaugeValue} | RSI: ${pulse.indicators.rsi.toFixed(1)} | HTF:${pulse.htf}`}
+            displayValue={`${pulse.score}`}
+            bandLabel="PULSE /10"
+            note={`Pulse ${pulse.score}/10 | RSI: ${pulse.indicators?.rsi?.toFixed(1) ?? "—"} | HTF:${pulse.htf}`}
             color={gaugeColor}
           />
         </div>

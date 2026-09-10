@@ -1,7 +1,8 @@
 "use client";
 
 interface PulseGaugeProps {
-  value: number; // 0 - 100
+  value: number; // 0 - 100 — dùng để vẽ cung + chọn màu
+  displayValue?: string; // số hiển thị giữa đồng hồ (mặc định = value)
   bandLabel?: string;
   note?: string;
   color?: string;
@@ -9,6 +10,7 @@ interface PulseGaugeProps {
 
 export function PulseGauge({
   value = 80,
+  displayValue,
   bandLabel = "PULSE",
   note = "Pulse:80 | Body:68% | Range:Strong | HTF:Pass",
   color,
@@ -68,7 +70,7 @@ export function PulseGauge({
             className="text-2xl font-bold font-mono tracking-tight leading-none"
             style={{ color: computedColor }}
           >
-            {value}
+            {displayValue ?? value}
           </span>
           <span className="text-[0.55rem] font-bold tracking-wider text-gray-400 uppercase mt-0.5">
             {bandLabel}

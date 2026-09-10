@@ -21,7 +21,6 @@ export interface Translations {
 
   // Action Banner
   signalBadge: string;
-  actionText: string;
   shareSignal: string;
   copied: string;
 
@@ -58,7 +57,6 @@ export interface Translations {
   // Analysis Summary
   analysisTitle: string;
   liveSignalBadge: string;
-  analysisText: string;
   viewTechnical: string;
 
   // 6 Technical Indicator Cards (RSI, ATR, EMA Gap, ADX, VWAP, Spread)
@@ -154,7 +152,6 @@ const translations: Record<Language, Translations> = {
     cancel: "Cancel",
 
     signalBadge: "TNV SIGNAL",
-    actionText: "XAUUSD LONG • Entry: $2,896.40 • Now: $2,898.50 (+$2.10) • Stop: $2,891.20",
     shareSignal: "Share Signal Alert",
     copied: "Copied!",
 
@@ -189,7 +186,6 @@ const translations: Record<Language, Translations> = {
 
     analysisTitle: "TNV ANALYSIS",
     liveSignalBadge: "LIVE SIGNAL",
-    analysisText: "Gold is displaying strong bullish momentum as Pulse reaches 80 and the price sits $2.10 above the $2,896.40 level, with higher-timeframe structure providing clean directional alignment without overhead resistance. Watch for: continuation above $2,898.50 toward upper expansion targets, or a pullback toward the $2,891.20 support to test demand before the next leg higher.",
     viewTechnical: "View technical indicators ‹",
 
     techTitle: "TNV Technical Indicators",
@@ -278,7 +274,6 @@ const translations: Record<Language, Translations> = {
     cancel: "Hủy",
 
     signalBadge: "TNV SIGNAL",
-    actionText: "XAUUSD LONG • Giá vào: $2,896.40 • Hiện tại: $2,898.50 (+$2.10) • Dừng lỗ: $2,891.20",
     shareSignal: "Chia sẻ tín hiệu",
     copied: "Đã sao chép!",
 
@@ -313,7 +308,6 @@ const translations: Record<Language, Translations> = {
 
     analysisTitle: "TNV ANALYSIS",
     liveSignalBadge: "TÍN HIỆU LIVE",
-    analysisText: "Vàng đang duy trì đà tăng mạnh mẽ với điểm xung lực Pulse đạt 80, giá bứt phá vượt $2.10 trên mức $2,896.40 cùng cấu trúc đa khung thời gian đồng thuận mà không gặp cản trở. Theo dõi: đà tăng tiếp diễn vượt $2,898.50 hướng tới các mục tiêu mở rộng, hoặc nhịp điều chỉnh kiểm tra lại ngưỡng hỗ trợ $2,891.20 trước khi hình thành nhịp tăng mới.",
     viewTechnical: "Xem bảng chỉ số kỹ thuật ‹",
 
     techTitle: "Chỉ số Kỹ thuật TNV",
