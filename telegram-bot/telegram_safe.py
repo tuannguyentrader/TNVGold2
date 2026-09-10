@@ -21,6 +21,35 @@ _TNV_PLACEHOLDER = "@TNVGOLDBOTPLACEHOLDER"
 # Khi khôi phục, dùng LINK Markdown — hiển thị @TNVGold_bot, click được,
 # KHÔNG có ký tự _ trong cú pháp Markdown → không bao giờ lỗi parse/escape thô.
 _TNV_BRAND_LINK = "[@TNVGold_bot](https://t.me/TNVGold_bot)"
+# Dùng khi placeholder nằm TRONG cặp *bold* — xem _restore_brand().
+_TNV_BRAND_PLAIN = "@TNVGold\\_bot"
+
+
+def _restore_brand(text: str) -> str:
+    """Khôi phục brand, tránh LINK LỒNG TRONG ENTITY.
+
+    Telegram Markdown (legacy) KHÔNG hỗ trợ entity lồng nhau. Nếu brand được
+    đặt trong cặp `*bold*` (hoặc `_italic_`) mà ta chèn link Markdown vào thì
+    link KHÔNG render — người đọc thấy nguyên cú pháp thô
+    `(by [@TNVGold_bot](https://t.me/TNVGold_bot))`. Đó là lỗi đã gặp ở tin
+    cảnh báo lịch kinh tế.
+
+    Cách xử lý: nếu placeholder nằm trong một cặp `*...*` (số dấu `*` đứng
+    trước là LẺ) thì trả về username đã escape (`@TNVGold\\_bot`) — hiển thị
+    sạch sẽ, không lỗi parse; ngược lại dùng link click được.
+    """
+    out: list[str] = []
+    idx = 0
+    while True:
+        pos = text.find(_TNV_PLACEHOLDER, idx)
+        if pos == -1:
+            out.append(text[idx:])
+            break
+        out.append(text[idx:pos])
+        inside_bold = text.count("*", 0, pos) % 2 == 1
+        out.append(_TNV_BRAND_PLAIN if inside_bold else _TNV_BRAND_LINK)
+        idx = pos + len(_TNV_PLACEHOLDER)
+    return "".join(out)
 
 
 def escape_md(text: str) -> str:
@@ -41,14 +70,14 @@ def escape_md(text: str) -> str:
 
     if count == 0:
         # Không có `_` nào → chỉ escape * lẻ
-        text = text.replace(_TNV_PLACEHOLDER, _TNV_BRAND_LINK)
+        text = _restore_brand(text)
         if text.count("*") % 2 != 0:
             text = text.replace("*", "\\*")
         return text
 
     if count % 2 == 0:
         # Đủ cặp → giữ nguyên, chỉ escape * lẻ
-        text = text.replace(_TNV_PLACEHOLDER, _TNV_BRAND_LINK)
+        text = _restore_brand(text)
         if text.count("*") % 2 != 0:
             text = text.replace("*", "\\*")
         return text
@@ -67,7 +96,7 @@ def escape_md(text: str) -> str:
     # Khôi phục italic + username
     for placeholder, original in protected:
         text = text.replace(placeholder, original)
-    text = text.replace(_TNV_PLACEHOLDER, _TNV_BRAND_LINK)
+    text = _restore_brand(text)
 
     # Escape * lẻ
     if text.count("*") % 2 != 0:

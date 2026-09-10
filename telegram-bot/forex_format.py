@@ -154,7 +154,7 @@ def format_news_alert(events: list[dict[str, Any]], lang: str = "vi",
 
     brand = "(by @TNVGold_bot)"
     if lang == "en":
-        header_title = f"UPCOMING ECONOMIC CALENDAR (XAUUSD) {brand}"
+        header_title = "UPCOMING ECONOMIC CALENDAR (XAUUSD)"
         header_source = "_Source: Forex Factory_"
         if minutes_left is not None:
             header_source = f"_Source: Forex Factory_ | _~{minutes_left} min left_"
@@ -170,7 +170,7 @@ def format_news_alert(events: list[dict[str, Any]], lang: str = "vi",
         )
         line_sep = "━" * 12
     else:
-        header_title = f"CẢNH BÁO LỊCH KINH TẾ SẮP TỚI (XAUUSD) {brand}"
+        header_title = "CẢNH BÁO LỊCH KINH TẾ SẮP TỚI (XAUUSD)"
         header_source = "_Nguồn: Forex Factory_"
         if minutes_left is not None:
             header_source = f"_Nguồn: Forex Factory_ | _Còn ~{minutes_left} phút nữa_"
@@ -187,7 +187,11 @@ def format_news_alert(events: list[dict[str, Any]], lang: str = "vi",
         line_sep = "━" * 12
 
     lines: list[str] = [
-        f"⏰ *{header_title}*",
+        # Brand nằm NGOÀI cặp *bold*: escape_md() biến @TNVGold_bot thành LINK
+        # Markdown, mà Telegram Markdown (legacy) KHÔNG hỗ trợ entity lồng nhau
+        # → để brand trong *...* sẽ lỗi parse, bot fallback sang plain text và
+        # người đọc thấy nguyên cú pháp thô [@TNVGold_bot](https://t.me/...).
+        f"⏰ *{header_title}* {brand}",
         header_source,
         "",
     ]
@@ -281,8 +285,9 @@ def format_alert(event: dict[str, Any], now: datetime, lang: str = "vi") -> str:
         impact_label = "🟢 LOW (Low Impact)"
 
     # Ngôn ngữ
+    brand = "(by @TNVGold_bot)"
     if lang == "en":
-        title_label = "ECONOMIC CALENDAR ALERT (XAUUSD) (by @TNVGold_bot)"
+        title_label = "ECONOMIC CALENDAR ALERT (XAUUSD)"
         time_label = "Time:"
         event_label = "Event:"
         impact_field = "Impact:"
@@ -294,7 +299,7 @@ def format_alert(event: dict[str, Any], now: datetime, lang: str = "vi") -> str:
             "absorb, then look for new entries."
         )
     else:
-        title_label = "CẢNH BÁO LỊCH KINH TẾ (XAUUSD) (by @TNVGold_bot)"
+        title_label = "CẢNH BÁO LỊCH KINH TẾ (XAUUSD)"
         time_label = "Thời gian:"
         event_label = "Sự kiện:"
         impact_field = "Mức độ tác động:"
@@ -314,7 +319,9 @@ def format_alert(event: dict[str, Any], now: datetime, lang: str = "vi") -> str:
         time_left_str = f"(Còn {mins_left} {minutes_suffix})"
 
     return (
-        f"🚨 *{title_label}* 🚨\n\n"
+        # Brand NGOÀI *bold* — tránh link lồng trong entity (Telegram Markdown
+        # legacy không hỗ trợ) làm lỗi parse → fallback plain text lộ cú pháp thô.
+        f"🚨 *{title_label}* 🚨 {brand}\n\n"
         f"⏰ *{time_label}* `{time_str} VN` {time_left_str}\n"
         f"{flag} *{event_label}* {title}\n"
         f"📊 *{impact_field}* {impact_label}\n\n"
