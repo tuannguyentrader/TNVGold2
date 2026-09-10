@@ -141,7 +141,7 @@ _STRINGS = {
         "en": "⚠️ *Free signal limit reached for today*\n\nYou've already received 5 auto signals today. Upgrade to *Pro* for unlimited high-quality TNV signals!\n\n💎 *Upgrade now:* Contact admin @TuanNguyenTrader for special offers.",
     },
     # ── /help chi tiết ────────────────────────────────────
-    "help_title": {"vi": "📖 *HƯỚNG DẪN SỬ DỤNG TNVGOLD*", "en": "📖 *TNVGOLD USER GUIDE*"},
+    "help_title": {"vi": "📖 *HƯỚNG DẪN SỬ DỤNG TNVGOLD* (by @TNVGold_bot)", "en": "📖 *TNVGOLD USER GUIDE* (by @TNVGold_bot)"},
     "help_analysis": {"vi": "📊 *PHÂN TÍCH & TÍN HIỆU*", "en": "📊 *ANALYSIS & SIGNALS*"},
     "help_settings": {"vi": "⚙️ *CÀI ĐẶT*", "en": "⚙️ *SETTINGS*"},
     "help_tier": {"vi": "⭐ *GÓI DỊCH VỤ*", "en": "⭐ *SERVICE TIERS*"},
@@ -169,8 +169,8 @@ _STRINGS = {
     },
     # Price
     "xau_price": {
-        "vi": "🪙 *XAUUSD*: *${price:.2f}*/oz",
-        "en": "🪙 *XAUUSD*: *${price:.2f}*/oz",
+        "vi": "🪙 *XAUUSD*: *${price:.2f}*/oz (by @TNVGold_bot)",
+        "en": "🪙 *XAUUSD*: *${price:.2f}*/oz (by @TNVGold_bot)",
     },
     "price_source": {
         "vi": " (Gold-API)",
@@ -447,7 +447,7 @@ _STRINGS = {
     "btn_lang_vi": {"vi": "🇻🇳 Tiếng Việt", "en": "🇻🇳 Vietnamese"},
     "btn_lang_en": {"vi": "🇬🇧 English", "en": "🇬🇧 English"},
     # ── Giai đoạn 1: /settings (1.2) ─────────────────────
-    "settings_title": {"vi": "⚙️ *CÀI ĐẶT*", "en": "⚙️ *SETTINGS*"},
+    "settings_title": {"vi": "⚙️ *CÀI ĐẶT* (by @TNVGold_bot)", "en": "⚙️ *SETTINGS* (by @TNVGold_bot)"},
     "settings_hint": {"vi": "_Chạm vào nút để bật/tắt._", "en": "_Tap buttons to toggle._"},
     "settings_auto_signal": {"vi": "📡 Tín hiệu tự động", "en": "📡 Auto signals"},
     "settings_news": {"vi": "📰 Cảnh báo tin tức", "en": "📰 News alerts"},
@@ -532,8 +532,8 @@ _STRINGS = {
 
     # ── Subscription / Register / Redeem ─────────────────
     "reg_welcome_new": {
-        "vi": "👋 Chào mừng! Gõ /register để đăng ký tài khoản (dùng thử {days} ngày miễn phí).",
-        "en": "👋 Welcome! Type /register to sign up (free {days}-day trial).",
+        "vi": "👋 Chào mừng! Gõ /register để đăng ký tài khoản (dùng thử {days} ngày miễn phí). (by @TNVGold_bot)",
+        "en": "👋 Welcome! Type /register to sign up (free {days}-day trial). (by @TNVGold_bot)",
     },
     "reg_already": {
         "vi": "✅ Bạn đã đăng ký rồi. Dùng /myplan để xem gói hiện tại.",
