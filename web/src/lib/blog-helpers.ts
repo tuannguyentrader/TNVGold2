@@ -12,6 +12,11 @@ export async function getLatestPulse() {
       score: p.score,
       volatility: p.volatility,
       multiTf: p.multiTf,
+      // Vùng giao dịch — để bài blog tự động có khối Entry/SL/TP khi đang có
+      // lệnh (bias LONG/SHORT). Trước đây bị cắt nên bài chỉ có giá + bias.
+      entry: p.entry,
+      sl: p.sl,
+      tp: p.tp,
     };
   } catch {
     return null;

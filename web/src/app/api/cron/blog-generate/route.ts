@@ -65,18 +65,54 @@ export async function GET(request: Request) {
     const biasVi = pulse?.bias === "LONG" ? "TĂNG" : pulse?.bias === "SHORT" ? "GIẢM" : "TRUNG TÍNH";
     const biasEn = pulse?.bias || "NEUTRAL";
 
+    // ── Nhãn phiên + mốc giờ VN ──────────────────────────────────────────
+    // Tiêu đề cũ chỉ có mốc thời gian ("XAUUSD Pulse — 20:34:21 8/9/2026") →
+    // các bài gần như trùng nhau = thin content. Thêm PHIÊN giao dịch + bias
+    // + giá để mỗi bài có tiêu đề riêng, có nghĩa, mô tả đúng nội dung.
+    const vn = new Date(now.getTime() + 7 * 3600 * 1000); // dịch sang giờ VN (UTC+7)
+    const vnHour = vn.getUTCHours();
+    const timeLabel = `${String(vnHour).padStart(2, "0")}:${String(vn.getUTCMinutes()).padStart(2, "0")} ${String(vn.getUTCDate()).padStart(2, "0")}/${String(vn.getUTCMonth() + 1).padStart(2, "0")}`;
+
+    // Phiên theo giờ VN: Á 07-15, Âu 15-20, Mỹ 20-03, còn lại ngoài phiên
+    const sessionVi =
+      vnHour >= 7 && vnHour < 15 ? "phiên Á"
+      : vnHour >= 15 && vnHour < 20 ? "phiên Âu"
+      : vnHour >= 20 || vnHour < 3 ? "phiên Mỹ"
+      : "ngoài phiên";
+    const sessionEn =
+      vnHour >= 7 && vnHour < 15 ? "Asian"
+      : vnHour >= 15 && vnHour < 20 ? "London"
+      : vnHour >= 20 || vnHour < 3 ? "New York"
+      : "off-session";
+
+    const priceStr = pulse?.price ? `$${pulse.price.toFixed(2)}` : "—";
+    const titleVi = `XAUUSD ${sessionVi} ${timeLabel}: bias ${biasVi}, giá ${priceStr}`;
+    const titleEn = `XAUUSD ${sessionEn} session ${timeLabel}: ${biasEn} bias at ${priceStr}`;
+
+    // Khối vùng giao dịch — chỉ khi đang có lệnh (bias LONG/SHORT kèm entry/SL/TP)
+    const entryP = pulse?.entry?.price ?? null;
+    const slP = pulse?.sl ?? null;
+    const tpP = pulse?.tp ?? null;
+    const hasTrade = !!(pulse && pulse.bias !== "NEUTRAL" && entryP && slP && tpP);
+    const tradeVi = hasTrade
+      ? `\n### Vùng giao dịch\n\n- **Entry:** $${entryP?.toFixed(2)}\n- **Stop Loss (1.5N):** $${slP?.toFixed(2)}\n- **Take Profit (2.0N):** $${tpP?.toFixed(2)}\n`
+      : "";
+    const tradeEn = hasTrade
+      ? `\n### Trade levels\n\n- **Entry:** $${entryP?.toFixed(2)}\n- **Stop Loss (1.5N):** $${slP?.toFixed(2)}\n- **Take Profit (2.0N):** $${tpP?.toFixed(2)}\n`
+      : "";
+
     const post = {
       slug,
       title: {
-        vi: `XAUUSD Pulse — ${now.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`,
-        en: `XAUUSD Pulse — ${now.toISOString()}`,
+        vi: titleVi,
+        en: titleEn,
       },
       excerpt: {
-        vi: `Cập nhật nhanh: Giá $${pulse?.price?.toFixed(2) || "—"}, bias ${biasVi}, score ${pulse?.score ?? "—"}/10.`,
-        en: `Quick update: Price $${pulse?.price?.toFixed(2) || "—"}, bias ${biasEn}, score ${pulse?.score ?? "—"}/10.`,
+        vi: `${sessionVi} ${timeLabel}: XAUUSD ${priceStr}, bias ${biasVi}, score ${pulse?.score ?? "—"}/10.`,
+        en: `${sessionEn} session ${timeLabel}: XAUUSD ${priceStr}, ${biasEn} bias, score ${pulse?.score ?? "—"}/10.`,
       },
       contentMd: {
-        vi: `## XAUUSD Pulse ${now.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+        vi: `## ${titleVi}
 
 ### Tổng quan
 
@@ -84,6 +120,7 @@ export async function GET(request: Request) {
 - **Bias:** ${biasVi}
 - **Score:** ${pulse?.score ?? "—"}/10
 - **Volatility:** ${pulse?.volatility?.toFixed(2) || "—"}
+${tradeVi}
 
 ### Multi-Timeframe
 
@@ -94,7 +131,7 @@ export async function GET(request: Request) {
 | H1 | ${pulse?.multiTf?.h1?.bias || "—"} | ${pulse?.multiTf?.h1?.score ?? "—"} |
 
 > ⚠️ *Bài tự động từ TNV Gold AI. Quản lý vốn chặt chẽ.*`,
-        en: `## XAUUSD Pulse ${now.toISOString()}
+        en: `## ${titleEn}
 
 ### Overview
 
@@ -102,6 +139,7 @@ export async function GET(request: Request) {
 - **Bias:** ${biasEn}
 - **Score:** ${pulse?.score ?? "—"}/10
 - **Volatility:** ${pulse?.volatility?.toFixed(2) || "—"}
+${tradeEn}
 
 ### Multi-Timeframe
 
