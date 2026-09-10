@@ -34,138 +34,14 @@ export interface BlogPost {
 
 const inMemory: Map<string, BlogPost> = new Map();
 
-// Seed 2 bài mẫu nếu store rỗng (chỉ lần đầu)
-function seedIfEmpty() {
-  if (inMemory.size > 0) return;
-  const now = Date.now();
-  inMemory.set("welcome", {
-    slug: "welcome",
-    title: { vi: "Chào mừng đến với TNV Gold", en: "Welcome to TNV Gold" },
-    excerpt: {
-      vi: "Giới thiệu về TNV Gold Pulse và cách sử dụng dashboard phân tích vàng XAUUSD real-time.",
-      en: "Introduction to TNV Gold Pulse and how to use the real-time XAUUSD analysis dashboard.",
-    },
-    contentMd: {
-      vi: `## Chào mừng đến với TNV Gold
-
-**TNV Gold Pulse** là dashboard phân tích vàng **XAUUSD** real-time bằng AI.
-
-### Tính năng chính
-
-- **Bias Real-Time** — Long/Short/Neutral cập nhật mỗi 10 giây
-- **Multi-Timeframe** — M5, M15, M30, H1 đồng thời
-- **Quality Score 0-10** — chấm điểm chất lượng tín hiệu
-- **AI Analysis** — giải thích tín hiệu bằng tiếng Việt
-
-### Cách sử dụng
-
-1. Mở [Dashboard](/goldpulse)
-2. Theo dõi bias hiện tại
-3. Đọc phân tích AI
-4. Quyết định vào lệnh
-
-⚠️ *Đây là công cụ hỗ trợ, không phải lời khuyên đầu tư.*`,
-      en: `## Welcome to TNV Gold
-
-**TNV Gold Pulse** is a real-time AI-powered dashboard for **XAUUSD** gold analysis.
-
-### Key Features
-
-- **Real-Time Bias** — Long/Short/Neutral updated every 10 seconds
-- **Multi-Timeframe** — M5, M15, M30, H1 simultaneously
-- **Quality Score 0-10** — signal quality scoring
-- **AI Analysis** — plain-language signal explanations
-
-### How to use
-
-1. Open [Dashboard](/goldpulse)
-2. Follow the current bias
-3. Read the AI analysis
-4. Make your trading decision
-
-⚠️ *This is a tool, not investment advice.*`,
-    },
-    tags: ["intro", "guide"],
-    type: "tutorial",
-    author: "TNV",
-    publishedAt: now,
-    lang: "vi",
-  });
-  inMemory.set("xau-analysis-2026-09", {
-    slug: "xau-analysis-2026-09",
-    title: { vi: "Phân tích XAUUSD tháng 9/2026", en: "XAUUSD Analysis September 2026" },
-    excerpt: {
-      vi: "Tổng quan thị trường vàng tháng 9/2026: xu hướng tăng, các mốc quan trọng cần theo dõi.",
-      en: "Gold market overview September 2026: bullish trend, key levels to watch.",
-    },
-    contentMd: {
-      vi: `## Phân tích XAUUSD tháng 9/2026
-
-### Bối cảnh thị trường
-
-Vàng đang trong xu hướng **tăng mạnh** trong tháng 9/2026, với nhiều yếu tố hỗ trợ:
-
-- Fed bắt đầu chu kỳ giảm lãi suất
-- Căng thẳng địa chính trị gia tăng
-- Nhu cầu trú ẩn an toàn tăng cao
-
-### Các mốc quan trọng
-
-- **Kháng cự:** 3,200 / 3,250 USD
-- **Hỗ trợ:** 3,050 / 2,980 USD
-
-### Tín hiệu kỹ thuật
-
-| Timeframe | Bias | Score |
-|-----------|------|-------|
-| M5 | LONG | 7 |
-| M15 | LONG | 8 |
-| H1 | LONG | 6 |
-
-### Khuyến nghị
-
-Ưu tiên canh **LONG** ở các vùng hỗ trợ, SL dưới 2,950.
-
-⚠️ *Quản lý vốn chặt chẽ, không all-in.*`,
-      en: `## XAUUSD Analysis September 2026
-
-### Market Context
-
-Gold is in a **strong uptrend** in September 2026, with multiple supporting factors:
-
-- Fed starting rate cut cycle
-- Rising geopolitical tensions
-- Increased safe-haven demand
-
-### Key Levels
-
-- **Resistance:** 3,200 / 3,250 USD
-- **Support:** 3,050 / 2,980 USD
-
-### Technical Signals
-
-| Timeframe | Bias | Score |
-|-----------|------|-------|
-| M5 | LONG | 7 |
-| M15 | LONG | 8 |
-| H1 | LONG | 6 |
-
-### Recommendation
-
-Prioritize **LONG** entries at support zones, SL below 2,950.
-
-⚠️ *Manage risk carefully, never all-in.*`,
-    },
-    tags: ["analysis", "monthly"],
-    type: "analysis",
-    author: "TNV AI",
-    publishedAt: now - 86400000,
-    lang: "vi",
-  });
-}
+// KHÔNG còn bài mẫu hardcode.
+// Trước đây store tự "seed" 2 bài demo (welcome + phân tích 9/2026) khi index
+// rỗng. Chúng chứa DỮ LIỆU GIẢ (kháng cự 3.200 USD trong khi vàng đang ~4.400,
+// nhận định thị trường bịa) → không được phép xuất hiện trên blog công khai.
+// Blog chỉ hiển thị bài THẬT từ Redis (bài tự động + bài admin đăng); chưa có
+// bài nào thì trang hiện trạng thái trống trung thực.
 
 export async function listPosts(options?: { limit?: number; type?: string }): Promise<BlogPost[]> {
-  seedIfEmpty();
   const limit = options?.limit ?? 50;
 
   let posts: BlogPost[];
@@ -221,7 +97,6 @@ export async function getLatestPulsePostAt(): Promise<number> {
 }
 
 export async function getPost(slug: string): Promise<BlogPost | null> {
-  seedIfEmpty();
 
   if (redis) {
     try {
