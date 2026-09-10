@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { BlogDetailClient } from "./blog-detail-client";
 import { getPost } from "@/lib/blog-store";
 
@@ -40,34 +41,34 @@ export default async function BlogDetailPage({
   const { slug } = await params;
   const post = await getPost(slug);
 
-  // JSON-LD Article schema
-  const jsonLd = post
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: post.title.vi,
-        description: post.excerpt.vi,
-        datePublished: new Date(post.publishedAt).toISOString(),
-        dateModified: new Date(post.publishedAt).toISOString(),
-        author: { "@type": "Person", name: post.author },
-        publisher: {
-          "@type": "Organization",
-          name: "TNV Gold",
-          logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.ico` },
-        },
-        mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
-        inLanguage: "vi-VN",
-      }
-    : null;
+  // Bài không tồn tại → 404 THẬT. Trước đây trang vẫn render với HTTP 200
+  // ("soft 404") — Google coi là trang kém chất lượng và trừ điểm cả site.
+  // Nay mọi slug rác (bài đã xoá, link cũ, bot quét) trả đúng mã 404.
+  if (!post) notFound();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title.vi,
+    description: post.excerpt.vi,
+    datePublished: new Date(post.publishedAt).toISOString(),
+    dateModified: new Date(post.publishedAt).toISOString(),
+    author: { "@type": "Person", name: post.author },
+    publisher: {
+      "@type": "Organization",
+      name: "TNV Gold",
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.ico` },
+    },
+    mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
+    inLanguage: "vi-VN",
+  };
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <BlogDetailClient slug={slug} />
     </>
   );
